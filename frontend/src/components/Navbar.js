@@ -4,14 +4,28 @@ import "../styles/Navbar.css";
 
 const Navbar = () => {
   return (
-    <div className="navbar">
-      {/* Search Bar */}
-      <input type="text" className="search-bar" placeholder="Search skills, posts..." />
+    <div className="navbar-container">
+      {/* Left - Logo */}
+      <div className="logo">
+        <h1>UpSkill</h1>
+      </div>
 
-      {/* Right Section */}
-      <div className="navbar-right">
+      {/* Center - Search Bar */}
+      <div className="search-bar">
+        <input
+          type="text"
+          className="input-search-bar"
+          placeholder="Search skills, posts..."
+        />
+      </div>
+
+      {/* Right - Profile & Notifications */}
+      <div className="profile-section">
         <FaBell className="icon" />
-        <FaUserCircle className="profile-icon" />
+        <div className="user-info">
+          <span>David Jonson</span>
+          <FaUserCircle className="profile-icon" />
+        </div>
       </div>
     </div>
   );

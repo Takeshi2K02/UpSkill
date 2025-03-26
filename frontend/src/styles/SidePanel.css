@@ -1,44 +1,42 @@
-
-.logo {
-    padding: 20px;
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.side-panel ul li:hover {
-    background-color: #e9ecef;
-}
-
-/* Sidebar Panel */
+/* Side Panel Styling */
 .side-panel {
-    width: 250px;
-    height: 100vh;
-    background-color: #f8f9fa;
-    position: fixed;
+    position: fixed;  /* ✅ Ensures it stays in place */
+    top: 80px;  /* ✅ Starts just below the Navbar */
     left: 0;
-    top: 0;
-    padding-top: 20px;
-    z-index: 1000; /* Below navbar */
+    width: 250px;  /* ✅ Sidebar width */
+    height: calc(100vh - 80px);  /* ✅ Full height minus Navbar */
+    background-color: #f4f4f4;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+    overflow-y: auto;  /* ✅ Allows scrolling if content overflows */
 }
 
-/* Sidebar Items */
+/* List Styling */
 .side-panel ul {
-    list-style-type: none;
+    list-style: none;
     padding: 0;
+    margin: 0;
 }
 
 .side-panel li {
-    padding: 15px 20px;
     display: flex;
     align-items: center;
     gap: 10px;
-    cursor: pointer;
+    padding: 12px 15px;
     font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+    border-radius: 5px;
 }
 
-/* Logout at Bottom */
-.logout {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
+.side-panel li:hover {
+    background-color: #ddd;
+}
+
+/* Logout Button */
+.side-panel .logout {
+    margin-top: 20px;
+    color: red;
 }

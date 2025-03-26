@@ -1,17 +1,14 @@
 import React from 'react';
-import SidePanel from '../components/SidePanel';
-import Navbar from '../components/Navbar';
+import Layout from '../components/Layout';
 import '../styles/Home.css';
 
 const Home = () => {
     return (
-        <div className="home-container">
-            <SidePanel />
-            <div className="main-content">
-                <Navbar />
-                <h1>Welcome to UpSkill</h1>
+        <Layout>
+            <div className="home-container">
+                {/* ✅ Home page content goes here */}
             </div>
-        </div>
+        </Layout>
     );
 };
 

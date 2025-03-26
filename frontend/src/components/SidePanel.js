@@ -5,7 +5,6 @@ import '../styles/SidePanel.css';
 const SidePanel = () => {
     return (
         <div className="side-panel">
-            <h2 className="logo">UpSkill</h2>
             <ul>
                 <li><FaHome /> Home</li>
                 <li><FaUser /> Profile</li>
