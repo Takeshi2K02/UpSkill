@@ -1,0 +1,59 @@
+/* Fix Navbar Alignment */
+.navbar {
+    width: calc(100% - 250px); /* Adjust width to fit the full page */
+    height: 60px;
+    background-color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+    position: fixed;
+    top: 0;
+    left: 250px; /* Aligns correctly after sidebar */
+    z-index: 1001;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-right {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between bell and profile icon */
+    margin-right: 20px; /* Ensures it doesn’t touch screen edge */
+}
+
+/* Fix Search Bar */
+.search-bar {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1rem;
+    max-width: 500px; /* Limits width */
+}
+
+/* Navbar Icons */
+.navbar-icons {
+    display: flex;
+    align-items: center;
+    gap: 15px; /* Space between icons */
+}
+
+/* General Icon Styling */
+.icon {
+    font-size: 1.6rem; /* Slightly larger */
+    cursor: pointer;
+    color: #333;
+}
+
+/* Fix Profile Icon */
+.profile-icon {
+    width: 40px;  /* Make it slightly bigger */
+    height: 40px;
+    border-radius: 50%;
+    background-color: #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    margin-left: 5px; /* Space from bell */
+}
