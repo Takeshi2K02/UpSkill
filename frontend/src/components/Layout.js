@@ -2,16 +2,17 @@ import React from 'react';
 import Navbar from './Navbar';
 import LeftPanel from './LeftPanel';
 import RightPanel from './RightPanel';
+import '../styles/Layout.css';
 
 const Layout = ({ children }) => {
     return (
         <div className="layout-container">
-            <Navbar />  {/* ✅ Navbar is always at the top */}
+            <Navbar />
             
             <div className="page-content">
-                <LeftPanel />  {/* ✅ Sidebar on the left */}
-                <div className="main-content">{children}</div>  {/* ✅ Center Content */}
-                <RightPanel />  {/* ✅ New Right Sidebar */}
+                <LeftPanel />
+                <div className="main-content">{children}</div>
+                <RightPanel />
             </div>
         </div>
     );
