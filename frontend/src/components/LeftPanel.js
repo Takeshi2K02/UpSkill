@@ -1,10 +1,10 @@
 import React from 'react';
 import { FaHome, FaUser, FaHistory, FaClipboardList, FaRobot, FaUsers, FaSignOutAlt } from 'react-icons/fa';
-import '../styles/SidePanel.css';
+import '../styles/LeftPanel.css';
 
-const SidePanel = () => {
+const LeftPanel = () => {
     return (
-        <div className="side-panel">
+        <div className="left-panel">
             <ul>
                 <li><FaHome /> Home</li>
                 <li><FaUser /> Profile</li>
@@ -18,4 +18,4 @@ const SidePanel = () => {
     );
 };
 
-export default SidePanel;
+export default LeftPanel;

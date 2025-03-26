@@ -1,5 +1,5 @@
 import React from "react";
-import { FaBell, FaUserCircle } from "react-icons/fa";
+import { FaBell } from "react-icons/fa";
 import "../styles/Navbar.css";
 
 const Navbar = () => {
@@ -24,7 +24,7 @@ const Navbar = () => {
         <FaBell className="icon" />
         <div className="user-info">
           <span>David Jonson</span>
-          <FaUserCircle className="profile-icon" />
+          <img src="/profile.png" alt="Profile" className="profile-image" />
         </div>
       </div>
     </div>

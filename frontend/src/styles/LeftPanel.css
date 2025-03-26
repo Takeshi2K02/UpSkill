@@ -1,24 +1,24 @@
-/* Side Panel Styling */
-.side-panel {
-    position: fixed;  /* ✅ Ensures it stays in place */
-    top: 80px;  /* ✅ Starts just below the Navbar */
+/* Left Panel Styling */
+.left-panel {
+    position: fixed;
+    top: 80px;
     left: 0;
-    width: 250px;  /* ✅ Sidebar width */
-    height: calc(100vh - 80px);  /* ✅ Full height minus Navbar */
+    width: 250px;
+    height: calc(100vh - 80px);
     background-color: #f4f4f4;
     box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
     padding: 20px;
-    overflow-y: auto;  /* ✅ Allows scrolling if content overflows */
+    overflow-y: auto;
 }
 
 /* List Styling */
-.side-panel ul {
+.left-panel ul {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-.side-panel li {
+.left-panel li {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -31,12 +31,12 @@
     border-radius: 5px;
 }
 
-.side-panel li:hover {
+.left-panel li:hover {
     background-color: #ddd;
 }
 
 /* Logout Button */
-.side-panel .logout {
+.left-panel .logout {
     margin-top: 20px;
     color: red;
 }
