@@ -1,0 +1,41 @@
+backend/
+│── src/
+│   ├── main/
+│   │   ├── java/com/upskill/backend/
+│   │   │   ├── controller/          # Handles API Endpoints
+│   │   │   ├── model/               # Defines Database Entities
+│   │   │   ├── repository/          # Handles Database Queries
+│   │   │   ├── service/             # Contains Business Logic
+│   │   │   ├── config/              # Configuration Files (Security, CORS, etc.)
+│   │   │   ├── exception/           # Custom Exception Handling
+│   │   │   ├── dto/                 # Data Transfer Objects (Optional)
+│   │   │   ├── util/                # Utility Classes
+│   │   │   ├── UpskillBackendApplication.java  # Main Spring Boot Application Class
+│   │   ├── resources/
+│   │   │   ├── static/              # Static files (if needed)
+│   │   │   ├── templates/           # Thymeleaf templates (if applicable)
+│   │   │   ├── application.properties  # Main Configuration File
+│   │   │   ├── application.yml      # (Alternative to properties file)
+│   ├── test/
+│   │   ├── java/com/upskill/backend/  # Unit & Integration Tests
+│
+│── pom.xml  # Maven Dependencies (if using Maven)
+│── build.gradle  # Gradle Dependencies (if using Gradle)
+│── README.md  # Project Documentation
+│── .gitignore  # Ignore unnecessary files in Git
+
+frontend/
+│── public/               # Static files like index.html, favicon, etc.
+│── src/
+│   ├── components/       # Reusable components
+│   ├── pages/            # Full pages/views
+│   ├── api/              # API call functions
+│   ├── context/          # Global state management (optional)
+│   ├── hooks/            # Custom React hooks (optional)
+│   ├── styles/           # CSS / Tailwind / Styled Components
+│   ├── App.js            # Root Component
+│   ├── index.js          # Entry point
+│   ├── routes.js         # React Router configuration (if applicable)
+│── package.json          # Dependencies
+│── .gitignore            # Files to ignore in Git
+│── README.md             # Documentation
