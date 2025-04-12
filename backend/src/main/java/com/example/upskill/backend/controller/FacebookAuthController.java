@@ -12,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Date;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -33,11 +34,13 @@ public class FacebookAuthController {
             String id = (String) fbUser.get("id");
             String name = (String) fbUser.get("name");
 
-            // Save to DB
-            User user = new User();
+            // Check if user already exists
+            Optional<User> existingUser = userRepository.findById(id);
+            User user = existingUser.orElseGet(User::new);
+
             user.setId(id);
             user.setName(name);
-            userRepository.save(user);
+            userRepository.save(user); // Will create or update
 
             // Generate JWT
             String jwt = Jwts.builder()
