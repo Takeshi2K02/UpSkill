@@ -1,8 +1,9 @@
 /* global FB */
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import "../styles/Login.css";
 
-const LoginPage = () => {
+const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -20,11 +21,9 @@ const LoginPage = () => {
     };
 
     (function (d, s, id) {
-      var js,
-        fjs = d.getElementsByTagName(s)[0];
+      var js, fjs = d.getElementsByTagName(s)[0];
       if (d.getElementById(id)) return;
-      js = d.createElement(s);
-      js.id = id;
+      js = d.createElement(s); js.id = id;
       js.src = 'https://connect.facebook.net/en_US/sdk.js';
       fjs.parentNode.insertBefore(js, fjs);
     })(document, 'script', 'facebook-jssdk');
@@ -37,42 +36,36 @@ const LoginPage = () => {
   };
 
   const handleFBLogin = () => {
-    FB.login(checkLoginState, { scope: 'public_profile' }); // No email to avoid scope error
+    FB.login(checkLoginState, { scope: 'public_profile' });
   };
 
   const statusChangeCallback = (response) => {
     if (response.status === 'connected') {
-      console.log('✅ Logged in', response.authResponse);
-
       fetch('http://localhost:8080/api/auth/facebook', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          accessToken: response.authResponse.accessToken,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accessToken: response.authResponse.accessToken }),
       })
         .then((res) => res.json())
         .then((data) => {
-          console.log('🛡️ Backend response:', data);
-
-          // ✅ Save JWT + user in sessionStorage
           sessionStorage.setItem('jwtToken', data.token);
           sessionStorage.setItem('user', JSON.stringify(data.user));
           navigate('/');
         });
-    } else {
-      console.log('❌ Not logged in');
     }
   };
 
   return (
-    <div style={{ padding: '40px' }}>
-      <h2>Facebook Login</h2>
-      <button onClick={handleFBLogin}>Login with Facebook</button>
+    <div className="login-background">
+      <div className="login-card">
+        <h1 className="login-title">Welcome to UpSkill</h1>
+        <p className="login-subtitle">Log in with your Facebook account to continue</p>
+        <button className="login-button" onClick={handleFBLogin}>
+          Login with Facebook
+        </button>
+      </div>
     </div>
   );
 };
 
-export default LoginPage;
+export default Login;
