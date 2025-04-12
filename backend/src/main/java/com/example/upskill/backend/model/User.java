@@ -1,19 +1,17 @@
 package com.example.upskill.backend.model;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
-@Table(name = "users")
+@Document(collection = "users")
 public class User {
 
     @Id
     private String id; // Facebook ID
 
     private String name;
-
     private String email;
-
-    private String picture; // ✅ New field for profile picture
+    private String picture;
 
     // Constructors
     public User() {}
