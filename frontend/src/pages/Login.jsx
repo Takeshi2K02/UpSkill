@@ -7,7 +7,6 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Load Facebook SDK
     window.fbAsyncInit = function () {
       FB.init({
         appId: "2440182359680143",
@@ -15,10 +14,6 @@ const Login = () => {
         xfbml: true,
         version: "v19.0",
       });
-
-    //   FB.getLoginStatus(function (response) {
-    //     console.log("Facebook login status:", response);
-    //   });
     };
 
     (function (d, s, id) {
@@ -37,7 +32,6 @@ const Login = () => {
         if (response.status === "connected") {
           const accessToken = response.authResponse.accessToken;
 
-          // Send to backend
           fetch("http://localhost:8080/api/auth/facebook", {
             method: "POST",
             headers: {
@@ -48,8 +42,8 @@ const Login = () => {
             .then((res) => res.json())
             .then((data) => {
               console.log("✅ Login Success:", data);
-              login(data.user, data.token); // ✅ Use context login
-              navigate("/"); // ✅ Use router
+              login(data.user, data.token);
+              navigate("/");
             });
         } else {
           console.log("❌ Login failed:", response);
@@ -60,13 +54,17 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-tr from-blue-600 to-purple-600">
-      <div className="bg-white p-10 rounded-xl shadow-md w-full max-w-md text-center">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">Welcome to UpSkill</h1>
-        <p className="text-gray-600 mb-8">Login with Facebook to continue</p>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-100 to-indigo-200">
+      <div className="bg-white/90 backdrop-blur-md px-10 py-12 rounded-2xl shadow-xl w-full max-w-md text-center border border-gray-200">
+        <h1 className="text-4xl font-extrabold text-gray-800 mb-4 tracking-tight">
+          Welcome to <span className="text-indigo-600">UpSkill</span>
+        </h1>
+        <p className="text-gray-500 mb-8 text-sm">
+          Connect your Facebook to get started
+        </p>
         <button
           onClick={handleLogin}
-          className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-full font-medium text-lg transition"
+          className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-full font-semibold text-base transition-all shadow-sm hover:shadow-md"
         >
           Login with Facebook
         </button>
