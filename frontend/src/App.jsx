@@ -4,6 +4,7 @@ import Login from './pages/Login';
 import PrivateRoute from './middleware/PrivateRoute';
 import { AuthContext } from './context/AuthContext';
 import Home from './pages/Home';
+import LearningPlans from './pages/LearningPlans';
 
 function App() {
   const { user, logout } = useContext(AuthContext);
@@ -34,6 +35,7 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route path="/learning-plans" element={<LearningPlans />} />
       </Routes>
     </div>
   );
