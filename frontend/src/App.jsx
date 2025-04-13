@@ -9,9 +9,17 @@ function App() {
   const navigate = useNavigate();
 
   const handleLogout = () => {
-    logout(); // Clears session and context
-    navigate('/login'); // Redirect to login
+    logout();
+    navigate('/login');
   };
+
+  const facebookId = sessionStorage.getItem('facebookId');
+  const fbToken = sessionStorage.getItem('facebookAccessToken');
+
+  const profilePicUrl =
+    facebookId && fbToken
+      ? `https://graph.facebook.com/${facebookId}/picture?width=480&height=480&access_token=${fbToken}`
+      : null;
 
   return (
     <div className="min-h-screen bg-gray-100 text-gray-800">
@@ -24,9 +32,16 @@ function App() {
               <div className="flex flex-col items-center justify-center h-screen">
                 <div className="bg-white shadow-md rounded-lg p-6 text-center w-96">
                   <h1 className="text-3xl font-bold mb-4">Welcome to UpSkill 🛡️</h1>
-                  <p className="text-gray-600 mb-4">
+                  <p className="text-gray-600 mb-2">
                     Logged in as: <span className="font-semibold">{user?.name || 'Unknown User'}</span>
                   </p>
+                  {profilePicUrl && (
+                    <img
+                      src={profilePicUrl}
+                      alt="Facebook Profile"
+                      className="w-24 h-24 mx-auto rounded-full border mb-4"
+                    />
+                  )}
                   <button
                     onClick={handleLogout}
                     className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"

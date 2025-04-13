@@ -42,6 +42,11 @@ const Login = () => {
             .then((res) => res.json())
             .then((data) => {
               console.log("✅ Login Success:", data);
+
+              // Store tokens & user info
+              sessionStorage.setItem("jwtToken", data.token);
+              sessionStorage.setItem("facebookAccessToken", data.facebookAccessToken); // ✅
+              sessionStorage.setItem("facebookId", data.user.id); // ✅
               login(data.user, data.token);
               navigate("/");
             });

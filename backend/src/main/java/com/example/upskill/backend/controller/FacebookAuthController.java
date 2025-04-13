@@ -24,6 +24,7 @@ public class FacebookAuthController {
     @PostMapping("/facebook")
     public ResponseEntity<?> handleFacebookLogin(@RequestBody Map<String, String> payload) {
         String accessToken = payload.get("accessToken");
+
         String url = "https://graph.facebook.com/me?fields=id,name&access_token=" + accessToken;
 
         try {
@@ -40,7 +41,7 @@ public class FacebookAuthController {
 
             user.setId(id);
             user.setName(name);
-            userRepository.save(user); // Will create or update
+            userRepository.save(user); // Create or update
 
             // Generate JWT
             String jwt = Jwts.builder()
@@ -54,6 +55,7 @@ public class FacebookAuthController {
             return ResponseEntity.ok(Map.of(
                     "message", "Facebook login verified",
                     "token", jwt,
+                    "facebookAccessToken", accessToken, // ✅ Return FB token
                     "user", Map.of(
                             "id", id,
                             "name", name
