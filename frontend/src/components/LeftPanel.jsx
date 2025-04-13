@@ -12,8 +12,8 @@ export default function LeftPanel() {
   };
 
   return (
-    <aside className="w-64 hidden md:block p-4">
-      <div className="bg-white rounded-lg shadow p-4 flex flex-col justify-between h-full">
+    <aside className="w-64 hidden md:block h-full sticky top-0 p-4">
+      <div className="bg-white rounded-lg shadow p-4 pt-4 flex flex-col justify-between h-full">
         <nav className="space-y-4">
           <NavLink to="/" className="flex items-center gap-3 p-2 rounded-md hover:bg-blue-50 transition">
             <Home size={18} /> Home
