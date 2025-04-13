@@ -10,17 +10,13 @@ public class User {
     private String id; // Facebook ID
 
     private String name;
-    private String email;
-    private String picture;
 
     // Constructors
     public User() {}
 
-    public User(String id, String name, String email, String picture) {
+    public User(String id, String name) {
         this.id = id;
         this.name = name;
-        this.email = email;
-        this.picture = picture;
     }
 
     // Getters & Setters
@@ -38,21 +34,5 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getPicture() {
-        return picture;
-    }
-
-    public void setPicture(String picture) {
-        this.picture = picture;
     }
 }
