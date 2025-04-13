@@ -58,7 +58,7 @@ export default function RightPanel() {
         </div>
 
         {/* Scrollable list */}
-        <div className="flex-1 px-4 pt-0 overflow-y-auto hover:overflow-y-auto">
+        <div className="flex-1 px-4 pt-0 overflow-hidden hover:overflow-y-auto scrollbar-hide">
           <ul className="space-y-2 text-sm">
             {users.map((u, idx) => (
               <li key={idx} className="text-gray-800">👤 {u}</li>
