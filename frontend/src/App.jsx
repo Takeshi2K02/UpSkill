@@ -5,6 +5,9 @@ import PrivateRoute from './middleware/PrivateRoute';
 import { AuthContext } from './context/AuthContext';
 import Home from './pages/Home';
 import LearningPlans from './pages/LearningPlans';
+import CreateLearningPlan from './pages/CreateLearningPlan';
+
+CreateLearningPlan
 
 function App() {
   const { user, logout } = useContext(AuthContext);
@@ -27,6 +30,7 @@ function App() {
     <div className="min-h-screen bg-gray-100 text-gray-800">
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/learning-plans/create" element={<CreateLearningPlan />} />
         <Route
           path="/"
           element={
@@ -36,6 +40,7 @@ function App() {
           }
         />
         <Route path="/learning-plans" element={<LearningPlans />} />
+        
       </Routes>
     </div>
   );
