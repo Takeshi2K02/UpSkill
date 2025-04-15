@@ -1,4 +1,3 @@
-// 📄 CreateLearningPlan.jsx (Page Wrapper)
 import React, { useState, useEffect } from 'react';
 import CommonLayout from '../layouts/CommonLayout';
 import TitleInput from '../components/TitleInput';
@@ -33,7 +32,6 @@ export default function CreateLearningPlan() {
     const previous = topics[index].name;
     let updatedUsed = [...usedTopicSuggestions];
 
-    // If clearing, remove from used
     if (previous && value === '' && updatedUsed.includes(previous)) {
       updatedUsed = updatedUsed.filter((s) => s !== previous);
     }
@@ -105,6 +103,7 @@ export default function CreateLearningPlan() {
           onTopicChange={handleTopicChange}
           onSelectSuggestion={handleSelectSuggestedTopic}
           onAddTopic={handleAddTopic}
+          className="space-y-4"
         />
       </div>
     </CommonLayout>

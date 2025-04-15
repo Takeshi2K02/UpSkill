@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 
 export default function TopicItem({ topic, index, onChange, onSelect, onClear }) {
   return (
-    <div className="mb-4">
+    <div className="mb-4 border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
       <div className="relative mb-2">
         <input
           type="text"
