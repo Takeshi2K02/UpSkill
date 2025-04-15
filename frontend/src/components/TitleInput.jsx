@@ -1,4 +1,6 @@
+import React from 'react';
 import { X } from 'lucide-react';
+
 export default function TitleInput({ value, onChange, suggestions }) {
   return (
     <div className="mb-4">

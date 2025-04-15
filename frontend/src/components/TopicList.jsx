@@ -1,4 +1,6 @@
+import React from 'react';
 import TopicItem from './TopicItem';
+
 export default function TopicList({ topics, onTopicChange, onSelectSuggestion, onAddTopic }) {
   return (
     <div className="mb-4">
@@ -10,7 +12,7 @@ export default function TopicList({ topics, onTopicChange, onSelectSuggestion, o
           topic={topic}
           onChange={onTopicChange}
           onSelect={onSelectSuggestion}
-          onClear={onTopicChange} // same as setting it to ''
+          onClear={(index) => onTopicChange(index, '')} // same as setting it to ''
         />
       ))}
       <button

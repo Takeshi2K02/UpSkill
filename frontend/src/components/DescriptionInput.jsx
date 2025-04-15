@@ -1,3 +1,5 @@
+import React from 'react';
+
 export default function DescriptionInput() {
     return (
       <div className="mb-6">
