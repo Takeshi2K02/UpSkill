@@ -10,6 +10,7 @@ import {
 import { fetchYouTubeVideos } from '../ai/youtubeService';
 import { generateTopicContentPrompt } from '../ai/prompts';
 import SparkAIButton from '../ai/SparkAIButton';
+import { calculateTopicWeight } from '../utils/utils';
 
 export default function TopicItem({ topic, index, onChange, onSelect, onClear }) {
   const [showTextContent, setShowTextContent] = useState(false);
@@ -29,6 +30,11 @@ export default function TopicItem({ topic, index, onChange, onSelect, onClear })
     };
     fetchSuggestions();
   }, [topic.name]);
+
+  useEffect(() => {
+    const newWeight = calculateTopicWeight(textContent, topic.resources || []);
+    onChange(index, 'weight', newWeight);
+  }, [textContent, topic.resources]);
 
   const handleSearchSubmit = async () => {
     if (!searchQuery.trim()) return;

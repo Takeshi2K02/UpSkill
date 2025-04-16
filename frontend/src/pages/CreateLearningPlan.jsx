@@ -5,6 +5,7 @@ import DescriptionInput from '../components/DescriptionInput';
 import TopicList from '../components/TopicList';
 import { generatePlanTitlePrompt, generateTopicSuggestionsPrompt } from '../ai/prompts';
 import { generateGeminiContent } from '../ai/geminiService';
+import { normalizeWeights } from '../utils/weightUtils';
 
 export default function CreateLearningPlan() {
   const [selectedTitle, setSelectedTitle] = useState('');
@@ -127,12 +128,7 @@ export default function CreateLearningPlan() {
       userId,
       title: selectedTitle,
       description,
-      topics: topics.map(({ name, textContent, resources }) => ({
-        name,
-        textContent,
-        resources,
-        weight: 1.0,
-      })),
+      topics: normalizeWeights(topics),
     };
 
     try {
