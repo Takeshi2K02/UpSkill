@@ -3,6 +3,8 @@ import CommonLayout from '../layouts/CommonLayout';
 import TitleInput from '../components/TitleInput';
 import DescriptionInput from '../components/DescriptionInput';
 import TopicList from '../components/TopicList';
+import { generatePlanTitlePrompt } from '../ai/prompts';
+import { generateGeminiContent } from '../ai/geminiService';
 
 export default function CreateLearningPlan() {
   const [selectedTitle, setSelectedTitle] = useState('');
@@ -12,14 +14,19 @@ export default function CreateLearningPlan() {
   const [usedTopicSuggestions, setUsedTopicSuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  // 🔁 Fetch AI-generated title suggestions on load
   useEffect(() => {
-    setSuggestedTitles([
-      'Mastering React for Web Development',
-      'Learn MERN Stack from Scratch',
-      'Frontend Basics with HTML, CSS, JS',
-      'Become a Fullstack Developer',
-      'Intro to Modern JavaScript Frameworks',
-    ]);
+    const fetchSuggestedTitles = async () => {
+      const prompt = generatePlanTitlePrompt;
+      const result = await generateGeminiContent(prompt);
+      const titles = result
+        .split('\n')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+      setSuggestedTitles(titles);
+    };
+
+    fetchSuggestedTitles();
   }, []);
 
   const generateTopicSuggestions = () => [
@@ -40,12 +47,15 @@ export default function CreateLearningPlan() {
     const availableSuggestions = generateTopicSuggestions().filter(
       (s) => !usedTopicSuggestions.includes(s)
     );
-    setTopics([...topics, {
-      name: '',
-      textContent: '',
-      resources: [],
-      suggestions: availableSuggestions,
-    }]);
+    setTopics([
+      ...topics,
+      {
+        name: '',
+        textContent: '',
+        resources: [],
+        suggestions: availableSuggestions,
+      },
+    ]);
   };
 
   const handleSelectSuggestedTopic = (index, topicName) => {
@@ -66,7 +76,9 @@ export default function CreateLearningPlan() {
       return {
         ...topic,
         name: currentName,
-        suggestions: generateTopicSuggestions().filter((s) => !dynamicUsed.includes(s)),
+        suggestions: generateTopicSuggestions().filter(
+          (s) => !dynamicUsed.includes(s)
+        ),
       };
     });
     setUsedTopicSuggestions(updatedUsed);
@@ -74,9 +86,9 @@ export default function CreateLearningPlan() {
   };
 
   const handleSaveLearningPlan = async () => {
-    const userId = sessionStorage.getItem("facebookId");
+    const userId = sessionStorage.getItem('facebookId');
     if (!userId) {
-      alert("User not logged in.");
+      alert('User not logged in.');
       return;
     }
 
@@ -88,17 +100,20 @@ export default function CreateLearningPlan() {
         name,
         textContent,
         resources,
-        weight: 1.0
+        weight: 1.0,
       })),
     };
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8080/api/learning-plans', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(learningPlan),
-      });
+      const response = await fetch(
+        'http://localhost:8080/api/learning-plans',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(learningPlan),
+        }
+      );
 
       if (response.ok) {
         alert('Learning plan saved successfully!');
@@ -116,13 +131,19 @@ export default function CreateLearningPlan() {
   return (
     <CommonLayout>
       <div className="p-6 bg-white min-h-screen">
-        <h2 className="text-2xl font-bold text-blue-700 mb-6">Create Learning Plan</h2>
+        <h2 className="text-2xl font-bold text-blue-700 mb-6">
+          Create Learning Plan
+        </h2>
         <TitleInput
           value={selectedTitle}
           onChange={setSelectedTitle}
           suggestions={suggestedTitles}
         />
-        <DescriptionInput value={description} onChange={setDescription} />
+        <DescriptionInput
+          value={description}
+          onChange={setDescription}
+          title={selectedTitle}
+        />
         <TopicList
           topics={topics}
           onTopicChange={handleTopicChange}
