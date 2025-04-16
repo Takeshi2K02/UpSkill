@@ -3,7 +3,7 @@ import CommonLayout from '../layouts/CommonLayout';
 import TitleInput from '../components/TitleInput';
 import DescriptionInput from '../components/DescriptionInput';
 import TopicList from '../components/TopicList';
-import { generatePlanTitlePrompt } from '../ai/prompts';
+import { generatePlanTitlePrompt, generateTopicSuggestionsPrompt } from '../ai/prompts';
 import { generateGeminiContent } from '../ai/geminiService';
 
 export default function CreateLearningPlan() {
@@ -12,9 +12,9 @@ export default function CreateLearningPlan() {
   const [description, setDescription] = useState('');
   const [topics, setTopics] = useState([]);
   const [usedTopicSuggestions, setUsedTopicSuggestions] = useState([]);
+  const [cachedAISuggestions, setCachedAISuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // 🔁 Fetch AI-generated title suggestions on load
   useEffect(() => {
     const fetchSuggestedTitles = async () => {
       const prompt = generatePlanTitlePrompt;
@@ -25,17 +25,8 @@ export default function CreateLearningPlan() {
         .filter((t) => t.length > 0);
       setSuggestedTitles(titles);
     };
-
     fetchSuggestedTitles();
   }, []);
-
-  const generateTopicSuggestions = () => [
-    'React Components',
-    'State Management',
-    'Hooks Deep Dive',
-    'Routing with React Router',
-    'Testing React Apps',
-  ];
 
   const handleTopicChange = (index, field, value) => {
     const updated = [...topics];
@@ -43,10 +34,25 @@ export default function CreateLearningPlan() {
     setTopics(updated);
   };
 
-  const handleAddTopic = () => {
-    const availableSuggestions = generateTopicSuggestions().filter(
+  const handleAddTopic = async () => {
+    let aiSuggestions = [...cachedAISuggestions];
+
+    if (!aiSuggestions.length && selectedTitle.trim() && description.trim()) {
+      const prompt = generateTopicSuggestionsPrompt(selectedTitle, description);
+      const result = await generateGeminiContent(prompt);
+      aiSuggestions = result
+        .split('\n')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0)
+        .slice(0, 5);
+
+      setCachedAISuggestions(aiSuggestions);
+    }
+
+    const availableSuggestions = aiSuggestions.filter(
       (s) => !usedTopicSuggestions.includes(s)
     );
+
     setTopics([
       ...topics,
       {
@@ -61,12 +67,14 @@ export default function CreateLearningPlan() {
   const handleSelectSuggestedTopic = (index, topicName) => {
     const previous = topics[index].name;
     let updatedUsed = [...usedTopicSuggestions];
+
     if (previous && updatedUsed.includes(previous)) {
       updatedUsed = updatedUsed.filter((t) => t !== previous);
     }
     if (!updatedUsed.includes(topicName)) {
       updatedUsed.push(topicName);
     }
+
     const updatedTopics = topics.map((topic, i) => {
       const currentName = i === index ? topicName : topic.name;
       const dynamicUsed = [...updatedUsed];
@@ -76,11 +84,32 @@ export default function CreateLearningPlan() {
       return {
         ...topic,
         name: currentName,
-        suggestions: generateTopicSuggestions().filter(
+        suggestions: cachedAISuggestions.filter(
           (s) => !dynamicUsed.includes(s)
         ),
       };
     });
+
+    setUsedTopicSuggestions(updatedUsed);
+    setTopics(updatedTopics);
+  };
+
+  const handleClearTopic = (index) => {
+    const clearedTopic = topics[index].name;
+    if (!clearedTopic) return;
+
+    const updatedUsed = usedTopicSuggestions.filter((t) => t !== clearedTopic);
+
+    const updatedTopics = topics.map((topic, i) => ({
+      ...topic,
+      name: i === index ? '' : topic.name,
+      suggestions: cachedAISuggestions.filter(
+        (s) =>
+          !updatedUsed.includes(s) &&
+          (i === index || s !== topic.name)
+      ),
+    }));
+
     setUsedTopicSuggestions(updatedUsed);
     setTopics(updatedTopics);
   };
@@ -106,14 +135,11 @@ export default function CreateLearningPlan() {
 
     try {
       setLoading(true);
-      const response = await fetch(
-        'http://localhost:8080/api/learning-plans',
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(learningPlan),
-        }
-      );
+      const response = await fetch('http://localhost:8080/api/learning-plans', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(learningPlan),
+      });
 
       if (response.ok) {
         alert('Learning plan saved successfully!');
@@ -131,9 +157,7 @@ export default function CreateLearningPlan() {
   return (
     <CommonLayout>
       <div className="p-6 bg-white min-h-screen">
-        <h2 className="text-2xl font-bold text-blue-700 mb-6">
-          Create Learning Plan
-        </h2>
+        <h2 className="text-2xl font-bold text-blue-700 mb-6">Create Learning Plan</h2>
         <TitleInput
           value={selectedTitle}
           onChange={setSelectedTitle}
@@ -150,6 +174,7 @@ export default function CreateLearningPlan() {
           onSelectSuggestion={handleSelectSuggestedTopic}
           onAddTopic={handleAddTopic}
           onSaveLearningPlan={handleSaveLearningPlan}
+          onClearTopic={handleClearTopic}
           loading={loading}
         />
       </div>

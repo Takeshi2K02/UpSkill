@@ -1,3 +1,4 @@
+// src/components/TopicList.jsx
 import React from 'react';
 import TopicItem from './TopicItem';
 
@@ -6,7 +7,8 @@ export default function TopicList({
   onTopicChange,
   onSelectSuggestion,
   onAddTopic,
-  onSaveLearningPlan
+  onSaveLearningPlan,
+  onClearTopic, // <-- FIX: Ensure this prop is included
 }) {
   return (
     <div className="mb-4">
@@ -19,7 +21,7 @@ export default function TopicList({
           topic={topic}
           onChange={onTopicChange}
           onSelect={onSelectSuggestion}
-          onClear={(index) => onTopicChange(index, '')}
+          onClear={onClearTopic} // <-- FIX: Pass it down to child
         />
       ))}
 
