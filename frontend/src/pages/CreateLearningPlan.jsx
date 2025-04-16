@@ -74,7 +74,7 @@ export default function CreateLearningPlan() {
   };
 
   const handleSaveLearningPlan = async () => {
-    const userId = sessionStorage.getItem("userId");
+    const userId = sessionStorage.getItem("facebookId");
     if (!userId) {
       alert("User not logged in.");
       return;
