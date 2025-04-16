@@ -1,7 +1,13 @@
 import React from 'react';
 import TopicItem from './TopicItem';
 
-export default function TopicList({ topics, onTopicChange, onSelectSuggestion, onAddTopic }) {
+export default function TopicList({
+  topics,
+  onTopicChange,
+  onSelectSuggestion,
+  onAddTopic,
+  onSaveLearningPlan
+}) {
   return (
     <div className="mb-4">
       <label className="block text-sm font-medium text-gray-700 mb-2">Topics</label>
@@ -28,7 +34,7 @@ export default function TopicList({ topics, onTopicChange, onSelectSuggestion, o
 
         <button
           type="button"
-          onClick={() => console.log('Saving Learning Plan...')}
+          onClick={onSaveLearningPlan}
           className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
         >
           Save Changes

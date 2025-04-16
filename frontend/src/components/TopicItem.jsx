@@ -1,11 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, Sparkles, ChevronRight, ChevronDown, ExternalLink, Search } from 'lucide-react';
 
 export default function TopicItem({ topic, index, onChange, onSelect, onClear }) {
   const [showTextContent, setShowTextContent] = useState(false);
   const [showResources, setShowResources] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedVideos, setSelectedVideos] = useState([]);
+  const [textContent, setTextContent] = useState(topic.textContent || '');
+  const [selectedVideos, setSelectedVideos] = useState(topic.resources || []);
 
   const defaultVideos = [
     {
@@ -89,20 +90,29 @@ export default function TopicItem({ topic, index, onChange, onSelect, onClear })
     setSuggestedVideos(dummyResults);
   };
 
-  const toggleVideoSelect = (id) => {
-    setSelectedVideos((prev) =>
-      prev.includes(id) ? prev.filter((v) => v !== id) : [...prev, id]
-    );
+  const handleTextContentChange = (value) => {
+    setTextContent(value);
+    onChange(index, 'textContent', value);
+  };
+
+  const toggleVideoSelect = (vid) => {
+    const alreadySelected = selectedVideos.find((v) => v.id === vid.id);
+    const updated = alreadySelected
+      ? selectedVideos.filter((v) => v.id !== vid.id)
+      : [...selectedVideos, vid];
+
+    setSelectedVideos(updated);
+    onChange(index, 'resources', updated);
   };
 
   return (
     <div className="mb-4 border border-gray-200 rounded-xl p-4 shadow-sm bg-white">
-      {/* Topic Title */}
+      {/* Topic Name */}
       <div className="relative mb-2">
         <input
           type="text"
           value={topic.name}
-          onChange={(e) => onChange(index, e.target.value)}
+          onChange={(e) => onChange(index, 'name', e.target.value)}
           className="w-full border border-gray-300 rounded px-3 py-2 pr-10"
           placeholder={`Topic ${index + 1}`}
         />
@@ -148,6 +158,8 @@ export default function TopicItem({ topic, index, onChange, onSelect, onClear })
               rows="4"
               className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none shadow-sm"
               placeholder="Enter text content for this topic..."
+              value={textContent}
+              onChange={(e) => handleTextContentChange(e.target.value)}
             />
             <button
               className="absolute top-3 right-3 text-blue-600 hover:text-blue-800"
@@ -160,7 +172,7 @@ export default function TopicItem({ topic, index, onChange, onSelect, onClear })
         )}
       </div>
 
-      {/* RESOURCES SECTION */}
+      {/* RESOURCES */}
       <div>
         <button
           onClick={() => setShowResources((prev) => !prev)}
@@ -172,7 +184,6 @@ export default function TopicItem({ topic, index, onChange, onSelect, onClear })
 
         {showResources && (
           <div className="mt-2 space-y-3">
-            {/* Search Bar + Button */}
             <div className="relative flex gap-2">
               <input
                 type="text"
@@ -190,17 +201,16 @@ export default function TopicItem({ topic, index, onChange, onSelect, onClear })
               </button>
             </div>
 
-            {/* Video Suggestions */}
             <div className="space-y-4">
               {suggestedVideos.map((vid) => (
                 <div
                   key={vid.id}
                   className={`flex items-start gap-4 p-3 border rounded-md transition cursor-pointer ${
-                    selectedVideos.includes(vid.id)
+                    selectedVideos.find((v) => v.id === vid.id)
                       ? 'border-blue-600 ring-2 ring-blue-300'
                       : 'border-gray-300 hover:border-blue-400'
                   }`}
-                  onClick={() => toggleVideoSelect(vid.id)}
+                  onClick={() => toggleVideoSelect(vid)}
                 >
                   <img
                     src={vid.thumbnail}
