@@ -121,6 +121,8 @@ export default function CreateLearningPlan() {
       return;
     }
 
+    console.log("Saving topics:", topics);
+
     const learningPlan = {
       userId,
       title: selectedTitle,

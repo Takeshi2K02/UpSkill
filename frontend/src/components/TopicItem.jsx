@@ -1,93 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { X, Sparkles, ChevronRight, ChevronDown, ExternalLink, Search } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  X,
+  Sparkles,
+  ChevronRight,
+  ChevronDown,
+  ExternalLink,
+  Search,
+} from 'lucide-react';
+import { fetchYouTubeVideos } from '../ai/youtubeService';
+import { generateTopicContentPrompt } from '../ai/prompts';
+import SparkAIButton from '../ai/SparkAIButton';
 
 export default function TopicItem({ topic, index, onChange, onSelect, onClear }) {
   const [showTextContent, setShowTextContent] = useState(false);
   const [showResources, setShowResources] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [suggestedVideos, setSuggestedVideos] = useState([]);
   const [textContent, setTextContent] = useState(topic.textContent || '');
-  const [selectedVideos, setSelectedVideos] = useState(topic.resources || []);
 
-  const defaultVideos = [
-    {
-      id: '1',
-      title: 'React Tutorial',
-      thumbnail: 'https://img.youtube.com/vi/dGcsHMXbSOA/0.jpg',
-      url: 'https://www.youtube.com/watch?v=dGcsHMXbSOA',
-      description: 'Beginner-friendly walkthrough on React fundamentals.',
-    },
-    {
-      id: '2',
-      title: 'Understanding State',
-      thumbnail: 'https://img.youtube.com/vi/O6P86uwfdR0/0.jpg',
-      url: 'https://www.youtube.com/watch?v=O6P86uwfdR0',
-      description: 'Deep dive into useState and managing component state.',
-    },
-    {
-      id: '3',
-      title: 'Hooks Explained',
-      thumbnail: 'https://img.youtube.com/vi/f687hBjwFcM/0.jpg',
-      url: 'https://www.youtube.com/watch?v=f687hBjwFcM',
-      description: 'Learn React Hooks with simple examples and best practices.',
-    },
-    {
-      id: '4',
-      title: 'React Router Guide',
-      thumbnail: 'https://img.youtube.com/vi/Law7wfdg_ls/0.jpg',
-      url: 'https://www.youtube.com/watch?v=Law7wfdg_ls',
-      description: 'How routing works in React with code walkthrough.',
-    },
-    {
-      id: '5',
-      title: 'Testing React Components',
-      thumbnail: 'https://img.youtube.com/vi/3e1GHf0b6bY/0.jpg',
-      url: 'https://www.youtube.com/watch?v=3e1GHf0b6bY',
-      description: 'Testing tips and tools for modern React apps.',
-    },
-  ];
+  const textareaRef = useRef(null);
 
-  const [suggestedVideos, setSuggestedVideos] = useState(defaultVideos);
+  useEffect(() => {
+    const fetchSuggestions = async () => {
+      if (topic.name && topic.name.length > 3) {
+        const videos = await fetchYouTubeVideos(topic.name);
+        setSuggestedVideos(videos);
+      }
+    };
+    fetchSuggestions();
+  }, [topic.name]);
 
-  const handleSearchSubmit = () => {
+  const handleSearchSubmit = async () => {
     if (!searchQuery.trim()) return;
-    const dummyResults = [
-      {
-        id: '101',
-        title: `Results for "${searchQuery}"`,
-        thumbnail: 'https://img.youtube.com/vi/ysz5S6PUM-U/0.jpg',
-        url: 'https://www.youtube.com/watch?v=ysz5S6PUM-U',
-        description: `Auto-generated results for "${searchQuery}" using AI`,
-      },
-      {
-        id: '102',
-        title: `More on ${searchQuery}`,
-        thumbnail: 'https://img.youtube.com/vi/ktjafK4SgWM/0.jpg',
-        url: 'https://www.youtube.com/watch?v=ktjafK4SgWM',
-        description: `Second video matching the search: "${searchQuery}"`,
-      },
-      {
-        id: '103',
-        title: `${searchQuery} Explained Simply`,
-        thumbnail: 'https://img.youtube.com/vi/Ke90Tje7VS0/0.jpg',
-        url: 'https://www.youtube.com/watch?v=Ke90Tje7VS0',
-        description: `Short explanation video about ${searchQuery}`,
-      },
-      {
-        id: '104',
-        title: `Top 5 Tips for ${searchQuery}`,
-        thumbnail: 'https://img.youtube.com/vi/NpEaa2P7qZI/0.jpg',
-        url: 'https://www.youtube.com/watch?v=NpEaa2P7qZI',
-        description: `Tutorial with tips about ${searchQuery}`,
-      },
-      {
-        id: '105',
-        title: `Why Learn ${searchQuery}?`,
-        thumbnail: 'https://img.youtube.com/vi/UhA4_WX1jHc/0.jpg',
-        url: 'https://www.youtube.com/watch?v=UhA4_WX1jHc',
-        description: `Exploring the importance of ${searchQuery}`,
-      },
-    ];
-    setSuggestedVideos(dummyResults);
+    const videos = await fetchYouTubeVideos(searchQuery);
+    setSuggestedVideos(videos);
   };
 
   const handleTextContentChange = (value) => {
@@ -96,12 +42,12 @@ export default function TopicItem({ topic, index, onChange, onSelect, onClear })
   };
 
   const toggleVideoSelect = (vid) => {
-    const alreadySelected = selectedVideos.find((v) => v.id === vid.id);
-    const updated = alreadySelected
-      ? selectedVideos.filter((v) => v.id !== vid.id)
-      : [...selectedVideos, vid];
+    const currentResources = topic.resources || [];
+    const isSelected = currentResources.some((v) => v.url === vid.url);
+    const updated = isSelected
+      ? currentResources.filter((v) => v.url !== vid.url)
+      : [...currentResources, vid];
 
-    setSelectedVideos(updated);
     onChange(index, 'resources', updated);
   };
 
@@ -152,22 +98,52 @@ export default function TopicItem({ topic, index, onChange, onSelect, onClear })
           {showTextContent ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
           <span className="ml-1">Text Content</span>
         </button>
+
         {showTextContent && (
           <div className="relative mt-2">
             <textarea
-              rows="4"
-              className="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none shadow-sm"
+              ref={textareaRef}
+              rows={1}
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none shadow-sm overflow-hidden min-h-[42px]"
               placeholder="Enter text content for this topic..."
               value={textContent}
-              onChange={(e) => handleTextContentChange(e.target.value)}
+              onChange={(e) => {
+                handleTextContentChange(e.target.value);
+                const el = textareaRef.current;
+                if (el) {
+                  el.style.height = 'auto';
+                  el.style.height = `${el.scrollHeight}px`;
+                }
+              }}
+              onInput={() => {
+                const el = textareaRef.current;
+                if (el) {
+                  el.style.height = 'auto';
+                  el.style.height = `${el.scrollHeight}px`;
+                }
+              }}
             />
-            <button
-              className="absolute top-3 right-3 text-blue-600 hover:text-blue-800"
-              title="Generate with AI"
-              onClick={() => console.log(`Generate content for topic ${index + 1}`)}
-            >
-              <Sparkles size={18} />
-            </button>
+            {topic.name && (
+              <div className="absolute right-2 inset-y-0 my-auto">
+                <SparkAIButton
+                  prompt={generateTopicContentPrompt(topic.name)}
+                  onResult={(result) => {
+                    const cleaned = result.trimEnd();
+                    setTextContent(cleaned);
+                    onChange(index, 'textContent', cleaned);
+                    setTimeout(() => {
+                      if (textareaRef.current) {
+                        textareaRef.current.style.height = 'auto';
+                        textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+                        textareaRef.current.focus();
+                        const length = textareaRef.current.value.length;
+                        textareaRef.current.setSelectionRange(length, length);
+                      }
+                    }, 0);
+                  }}
+                />
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -204,9 +180,9 @@ export default function TopicItem({ topic, index, onChange, onSelect, onClear })
             <div className="space-y-4">
               {suggestedVideos.map((vid) => (
                 <div
-                  key={vid.id}
+                  key={vid.url}
                   className={`flex items-start gap-4 p-3 border rounded-md transition cursor-pointer ${
-                    selectedVideos.find((v) => v.id === vid.id)
+                    (topic.resources || []).some((v) => v.url === vid.url)
                       ? 'border-blue-600 ring-2 ring-blue-300'
                       : 'border-gray-300 hover:border-blue-400'
                   }`}
@@ -219,7 +195,9 @@ export default function TopicItem({ topic, index, onChange, onSelect, onClear })
                   />
                   <div className="flex-1">
                     <h4 className="text-sm font-medium">{vid.title}</h4>
-                    <p className="text-xs text-gray-600 mb-1 line-clamp-2">{vid.description}</p>
+                    <p className="text-xs text-gray-600 mb-1 line-clamp-2">
+                      {vid.description}
+                    </p>
                     <a
                       href={vid.url}
                       onClick={(e) => e.stopPropagation()}
