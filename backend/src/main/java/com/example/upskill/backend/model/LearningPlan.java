@@ -18,10 +18,11 @@ public class LearningPlan {
     private List<Topic> topics;
     private Instant createdAt;
     private Instant updatedAt;
+    private Instant dueDate;
 
     public LearningPlan() {}
 
-    public LearningPlan(String id, String userId, String title, String description, List<Topic> topics, Instant createdAt, Instant updatedAt) {
+    public LearningPlan(String id, String userId, String title, String description, List<Topic> topics, Instant createdAt, Instant updatedAt, Instant dueDate) {
         this.id = id;
         this.userId = userId;
         this.title = title;
@@ -29,7 +30,8 @@ public class LearningPlan {
         this.topics = topics;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
-    }
+        this.dueDate = dueDate;
+    }    
 
     public String getId() { return id; }
     public void setId(String id) { this.id = id; }
@@ -51,4 +53,7 @@ public class LearningPlan {
 
     public Instant getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(Instant updatedAt) { this.updatedAt = updatedAt; }
+
+    public Instant getDueDate() { return dueDate; }
+    public void setDueDate(Instant dueDate) { this.dueDate = dueDate; }
 }

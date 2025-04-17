@@ -8,14 +8,16 @@ public class Topic {
     private String textContent;
     private List<Resource> resources;
     private double weight;
+    private String status;
 
     public Topic() {}
 
-    public Topic(String name, String textContent, List<Resource> resources, double weight) {
+    public Topic(String name, String textContent, List<Resource> resources, double weight, String status) {
         this.name = name;
         this.textContent = textContent;
         this.resources = resources;
         this.weight = weight;
+        this.status = status;
     }
 
     public String getName() { return name; }
@@ -29,4 +31,7 @@ public class Topic {
 
     public double getWeight() { return weight; }
     public void setWeight(double weight) { this.weight = weight; }
+
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
 }
