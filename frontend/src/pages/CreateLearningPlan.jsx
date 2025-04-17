@@ -19,6 +19,21 @@ export default function CreateLearningPlan() {
   const [titleError, setTitleError] = useState('');
   const [descError, setDescError] = useState('');
 
+  const canSave = () => {
+    if (!selectedTitle.trim()) return false;
+    if (!description.trim()) return false;
+    if (topics.length === 0) return false;
+  
+    const validTopics = topics.filter((t) =>
+      t.name.trim() !== '' &&
+      (t.textContent.trim() !== '' || (Array.isArray(t.resources) && t.resources.length > 0))
+    );
+  
+    if (validTopics.length === 0) return false;
+  
+    return true;
+  };   
+
   // 🧠 Clear errors if field is fixed
   useEffect(() => {
     if (selectedTitle.trim()) {
@@ -231,6 +246,7 @@ export default function CreateLearningPlan() {
           onSaveLearningPlan={handleSaveLearningPlan}
           onClearTopic={handleClearTopic}
           loading={loading}
+          canSave={canSave}
         />
       </div>
     </CommonLayout>

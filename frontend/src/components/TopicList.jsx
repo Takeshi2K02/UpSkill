@@ -8,7 +8,8 @@ export default function TopicList({
   onSelectSuggestion,
   onAddTopic,
   onSaveLearningPlan,
-  onClearTopic, // <-- FIX: Ensure this prop is included
+  onClearTopic,
+  canSave,
 }) {
   return (
     <div className="mb-4">
@@ -37,7 +38,12 @@ export default function TopicList({
         <button
           type="button"
           onClick={onSaveLearningPlan}
-          className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-sm"
+          disabled={!canSave()}
+          className={`inline-flex items-center px-4 py-2 text-sm rounded ${
+            canSave()
+              ? 'bg-blue-600 text-white hover:bg-blue-700'
+              : 'bg-gray-300 text-gray-600 cursor-not-allowed'
+          }`}
         >
           Save Changes
         </button>
