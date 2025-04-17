@@ -1,48 +1,68 @@
-// src/pages/LearningPlans.jsx
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getLearningPlansByUser } from '../services/learningPlanService';
 import { FiPlus } from 'react-icons/fi';
 import CommonLayout from '../layouts/CommonLayout';
 import { Link } from 'react-router-dom';
 
 export default function LearningPlans() {
-  const plans = [
-    {
-      title: 'Python Basics',
-      progress: 70,
-      dueDate: 'May 30',
-      color: 'bg-blue-500',
-    },
-    {
-      title: 'React Fundamentals',
-      progress: 40,
-      dueDate: 'May 30',
-      color: 'bg-green-500',
-    },
-    {
-      title: 'React Fundamentals',
-      progress: 40,
-      dueDate: 'May 30',
-      color: 'bg-green-500',
-    },
-    {
-      title: 'React Fundamentals',
-      progress: 40,
-      dueDate: 'May 30',
-      color: 'bg-green-500',
-    },
-    {
-      title: 'React Fundamentals',
-      progress: 40,
-      dueDate: 'May 30',
-      color: 'bg-green-500',
-    },
-    {
-      title: 'React Fundamentals',
-      progress: 40,
-      dueDate: 'May 30',
-      color: 'bg-green-500',
-    },
-  ];
+  const [plans, setPlans] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const pendingPlans = plans.filter(plan => !plan.dueDate);
+  const currentPlans = plans.filter(plan => {
+    if (!plan.dueDate) return false;
+    const totalTopics = plan.topics?.length || 0;
+    const completedTopics = plan.topics?.filter(t => t.status === 'COMPLETED').length || 0;
+    return completedTopics < totalTopics;
+  });
+  const completedPlans = plans.filter(plan => {
+    const totalTopics = plan.topics?.length || 0;
+    const completedTopics = plan.topics?.filter(t => t.status === 'COMPLETED').length || 0;
+    return totalTopics > 0 && completedTopics === totalTopics;
+  });
+
+  useEffect(() => {
+    const fetchPlans = async () => {
+      try {
+        const userId = sessionStorage.getItem('facebookId');
+        if (!userId) {
+          console.error('No user ID found');
+          return;
+        }
+        const data = await getLearningPlansByUser(userId);
+        setPlans(data);
+      } catch (error) {
+        console.error('Failed to fetch learning plans:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchPlans();
+  }, []);
+
+  const renderPlanCard = (plan) => {
+    const planId = plan._id?.$oid; // safely extract MongoDB's ObjectId
+
+    if (!planId) return null; // safety check
+
+    return (
+      <Link to={`/learning-plans/${planId}`} key={planId}>
+        <div className="bg-white p-4 rounded shadow hover:shadow-md transition">
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold text-gray-800">{plan.title}</h3>
+          </div>
+          <div className="w-full h-2 bg-gray-200 rounded mb-2">
+            {/* Progress bar will be added later */}
+          </div>
+          <p className="text-sm text-gray-600">
+            Due: {plan.dueDate ? new Date(plan.dueDate).toLocaleDateString() : 'No due date'}
+          </p>
+        </div>
+      </Link>
+    );
+  };
+
 
   return (
     <CommonLayout>
@@ -57,23 +77,38 @@ export default function LearningPlans() {
           </Link>
         </div>
 
-        <div className="space-y-6">
-          {plans.map((plan, idx) => (
-            <div key={idx} className="bg-white p-4 rounded shadow">
-              <div className="flex items-center justify-between mb-2">
-                <h3 className="text-lg font-semibold text-gray-800">{plan.title}</h3>
-                <span className="text-gray-700 font-semibold">{plan.progress}%</span>
+        {loading ? (
+          <p className="text-center text-gray-500">Loading learning plans...</p>
+        ) : (
+          <div className="space-y-10">
+            {pendingPlans.length > 0 && (
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-4">Pending Plans</h3>
+                <div className="space-y-4">
+                  {pendingPlans.map(renderPlanCard)}
+                </div>
               </div>
-              <div className="w-full h-2 bg-gray-200 rounded mb-2">
-                <div
-                  className={`${plan.color} h-full rounded`}
-                  style={{ width: `${plan.progress}%` }}
-                />
+            )}
+
+            {currentPlans.length > 0 && (
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-4">Current Plans</h3>
+                <div className="space-y-4">
+                  {currentPlans.map(renderPlanCard)}
+                </div>
               </div>
-              <p className="text-sm text-gray-600">Due: {plan.dueDate}</p>
-            </div>
-          ))}
-        </div>
+            )}
+
+            {completedPlans.length > 0 && (
+              <div>
+                <h3 className="text-xl font-semibold text-gray-800 mb-4">Completed Plans</h3>
+                <div className="space-y-4">
+                  {completedPlans.map(renderPlanCard)}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </CommonLayout>
   );

@@ -18,3 +18,20 @@ export async function createLearningPlan(learningPlan) {
     throw error;
   }
 }
+
+export async function getLearningPlansByUser(userId) {
+  try {
+    const response = await fetch(`${BASE_URL}?userId=${encodeURIComponent(userId)}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch learning plans');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching learning plans:', error);
+    throw error;
+  }
+}

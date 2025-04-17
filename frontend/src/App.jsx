@@ -6,6 +6,7 @@ import { AuthContext } from './context/AuthContext';
 import Home from './pages/Home';
 import LearningPlans from './pages/LearningPlans';
 import CreateLearningPlan from './pages/CreateLearningPlan';
+import LearningPlanDetail from './pages/LearningPlanDetail';
 
 CreateLearningPlan
 
@@ -40,7 +41,7 @@ function App() {
           }
         />
         <Route path="/learning-plans" element={<LearningPlans />} />
-        
+        <Route path="/learning-plans/:id" element={<LearningPlanDetail />} />
       </Routes>
     </div>
   );
