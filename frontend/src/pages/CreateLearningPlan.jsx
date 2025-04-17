@@ -6,6 +6,7 @@ import TopicList from '../components/TopicList';
 import { generatePlanTitlePrompt, generateTopicSuggestionsPrompt } from '../ai/prompts';
 import { generateGeminiContent } from '../ai/geminiService';
 import { normalizeWeights } from '../utils/weightUtils';
+import { createLearningPlan } from '../services/learningPlanService';
 
 export default function CreateLearningPlan() {
   const [selectedTitle, setSelectedTitle] = useState('');
@@ -15,7 +16,6 @@ export default function CreateLearningPlan() {
   const [usedTopicSuggestions, setUsedTopicSuggestions] = useState([]);
   const [cachedAISuggestions, setCachedAISuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
-
   const [titleError, setTitleError] = useState('');
   const [descError, setDescError] = useState('');
 
@@ -23,37 +23,27 @@ export default function CreateLearningPlan() {
     if (!selectedTitle.trim()) return false;
     if (!description.trim()) return false;
     if (topics.length === 0) return false;
-  
     const validTopics = topics.filter((t) =>
       t.name.trim() !== '' &&
       (t.textContent.trim() !== '' || (Array.isArray(t.resources) && t.resources.length > 0))
     );
-  
     if (validTopics.length === 0) return false;
-  
     return true;
-  };   
+  };
 
-  // 🧠 Clear errors if field is fixed
   useEffect(() => {
-    if (selectedTitle.trim()) {
-      setTitleError('');
-    }
+    if (selectedTitle.trim()) setTitleError('');
   }, [selectedTitle]);
 
   useEffect(() => {
-    if (description.trim()) {
-      setDescError('');
-    }
+    if (description.trim()) setDescError('');
   }, [description]);
 
-  // 🎯 Clear topics if title changes
   const handleTitleChange = async (newTitle) => {
     setSelectedTitle(newTitle);
     setTopics([]);
     setUsedTopicSuggestions([]);
     setCachedAISuggestions([]);
-  
     if (newTitle.trim() && description.trim()) {
       const prompt = generateTopicSuggestionsPrompt(newTitle, description);
       const result = await generateGeminiContent(prompt);
@@ -62,11 +52,9 @@ export default function CreateLearningPlan() {
         .map((t) => t.trim())
         .filter((t) => t.length > 0)
         .slice(0, 5);
-  
       setCachedAISuggestions(aiSuggestions);
     }
   };
-  
 
   useEffect(() => {
     const fetchSuggestedTitles = async () => {
@@ -89,25 +77,21 @@ export default function CreateLearningPlan() {
 
   const handleAddTopic = async () => {
     let valid = true;
-
     if (!selectedTitle.trim()) {
       setTitleError('Please enter or select a title before adding a topic.');
       valid = false;
     } else {
       setTitleError('');
     }
-
     if (!description.trim()) {
       setDescError('Please write a description before adding a topic.');
       valid = false;
     } else {
       setDescError('');
     }
-
     if (!valid) return;
 
     let aiSuggestions = [...cachedAISuggestions];
-
     if (!aiSuggestions.length) {
       const prompt = generateTopicSuggestionsPrompt(selectedTitle, description);
       const result = await generateGeminiContent(prompt);
@@ -116,7 +100,6 @@ export default function CreateLearningPlan() {
         .map((t) => t.trim())
         .filter((t) => t.length > 0)
         .slice(0, 5);
-
       setCachedAISuggestions(aiSuggestions);
     }
 
@@ -138,7 +121,6 @@ export default function CreateLearningPlan() {
   const handleSelectSuggestedTopic = (index, topicName) => {
     const previous = topics[index].name;
     let updatedUsed = [...usedTopicSuggestions];
-
     if (previous && updatedUsed.includes(previous)) {
       updatedUsed = updatedUsed.filter((t) => t !== previous);
     }
@@ -168,9 +150,7 @@ export default function CreateLearningPlan() {
   const handleClearTopic = (index) => {
     const clearedTopic = topics[index].name;
     if (!clearedTopic) return;
-
     const updatedUsed = usedTopicSuggestions.filter((t) => t !== clearedTopic);
-
     const updatedTopics = topics.map((topic, i) => ({
       ...topic,
       name: i === index ? '' : topic.name,
@@ -180,7 +160,6 @@ export default function CreateLearningPlan() {
           (i === index || s !== topic.name)
       ),
     }));
-
     setUsedTopicSuggestions(updatedUsed);
     setTopics(updatedTopics);
   };
@@ -192,8 +171,6 @@ export default function CreateLearningPlan() {
       return;
     }
 
-    console.log("Saving topics:", topics);
-
     const learningPlan = {
       userId,
       title: selectedTitle,
@@ -203,17 +180,8 @@ export default function CreateLearningPlan() {
 
     try {
       setLoading(true);
-      const response = await fetch('http://localhost:8080/api/learning-plans', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(learningPlan),
-      });
-
-      if (response.ok) {
-        alert('Learning plan saved successfully!');
-      } else {
-        alert('Failed to save learning plan.');
-      }
+      await createLearningPlan(learningPlan);
+      alert('Learning plan saved successfully!');
     } catch (error) {
       console.error(error);
       alert('Error while saving learning plan.');
