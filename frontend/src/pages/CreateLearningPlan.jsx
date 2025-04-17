@@ -16,6 +16,21 @@ export default function CreateLearningPlan() {
   const [cachedAISuggestions, setCachedAISuggestions] = useState([]);
   const [loading, setLoading] = useState(false);
 
+  const [titleError, setTitleError] = useState('');
+  const [descError, setDescError] = useState('');
+
+  useEffect(() => {
+    if (selectedTitle.trim()) {
+      setTitleError('');
+    }
+  }, [selectedTitle]);
+  
+  useEffect(() => {
+    if (description.trim()) {
+      setDescError('');
+    }
+  }, [description]);
+  
   useEffect(() => {
     const fetchSuggestedTitles = async () => {
       const prompt = generatePlanTitlePrompt;
@@ -36,9 +51,27 @@ export default function CreateLearningPlan() {
   };
 
   const handleAddTopic = async () => {
+    let valid = true;
+  
+    if (!selectedTitle.trim()) {
+      setTitleError('Please enter or select a title before adding a topic.');
+      valid = false;
+    } else {
+      setTitleError('');
+    }
+  
+    if (!description.trim()) {
+      setDescError('Please write a description before adding a topic.');
+      valid = false;
+    } else {
+      setDescError('');
+    }
+  
+    if (!valid) return;
+  
     let aiSuggestions = [...cachedAISuggestions];
-
-    if (!aiSuggestions.length && selectedTitle.trim() && description.trim()) {
+  
+    if (!aiSuggestions.length) {
       const prompt = generateTopicSuggestionsPrompt(selectedTitle, description);
       const result = await generateGeminiContent(prompt);
       aiSuggestions = result
@@ -46,14 +79,14 @@ export default function CreateLearningPlan() {
         .map((t) => t.trim())
         .filter((t) => t.length > 0)
         .slice(0, 5);
-
+  
       setCachedAISuggestions(aiSuggestions);
     }
-
+  
     const availableSuggestions = aiSuggestions.filter(
       (s) => !usedTopicSuggestions.includes(s)
     );
-
+  
     setTopics([
       ...topics,
       {
@@ -63,7 +96,7 @@ export default function CreateLearningPlan() {
         suggestions: availableSuggestions,
       },
     ]);
-  };
+  };  
 
   const handleSelectSuggestedTopic = (index, topicName) => {
     const previous = topics[index].name;
@@ -161,11 +194,13 @@ export default function CreateLearningPlan() {
           onChange={setSelectedTitle}
           suggestions={suggestedTitles}
         />
+        {titleError && <p className="text-red-600 text-sm mt-1">{titleError}</p>}
         <DescriptionInput
           value={description}
           onChange={setDescription}
           title={selectedTitle}
         />
+        {descError && <p className="text-red-600 text-sm mt-1">{descError}</p>}
         <TopicList
           topics={topics}
           onTopicChange={handleTopicChange}
