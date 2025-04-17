@@ -35,3 +35,20 @@ export async function getLearningPlansByUser(userId) {
     throw error;
   }
 }
+
+export async function getLearningPlanById(id) {
+  try {
+    const response = await fetch(`${BASE_URL}/${id}`, {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to fetch learning plan by ID');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error fetching learning plan by ID:', error);
+    throw error;
+  }
+}

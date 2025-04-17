@@ -31,17 +31,10 @@ function App() {
     <div className="min-h-screen bg-gray-100 text-gray-800">
       <Routes>
         <Route path="/login" element={<Login />} />
-        <Route path="/learning-plans/create" element={<CreateLearningPlan />} />
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <Home />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/learning-plans" element={<LearningPlans />} />
-        <Route path="/learning-plans/:id" element={<LearningPlanDetail />} />
+        <Route path="/learning-plans/create" element={<PrivateRoute><CreateLearningPlan /></PrivateRoute>} />
+        <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+        <Route path="/learning-plans" element={<PrivateRoute><LearningPlans /></PrivateRoute>} />
+        <Route path="/learning-plans/:id" element={<PrivateRoute><LearningPlanDetail /></PrivateRoute>} />
       </Routes>
     </div>
   );

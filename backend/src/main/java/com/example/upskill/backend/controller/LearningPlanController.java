@@ -29,4 +29,11 @@ public class LearningPlanController {
     public List<LearningPlan> getPlansByUserId(@RequestParam String userId) {
         return repository.findByUserId(userId);
     }
+
+    // GET: Get a specific learning plan by ID
+    @GetMapping("/{id}")
+    public LearningPlan getLearningPlanById(@PathVariable String id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Learning Plan not found with id: " + id));
+    }
 }

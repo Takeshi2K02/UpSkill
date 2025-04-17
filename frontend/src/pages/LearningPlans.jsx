@@ -42,7 +42,7 @@ export default function LearningPlans() {
   }, []);
 
   const renderPlanCard = (plan) => {
-    const planId = plan._id?.$oid; // safely extract MongoDB's ObjectId
+    const planId = plan._id?.$oid || plan.id; // fallback safely
 
     if (!planId) return null; // safety check
 
