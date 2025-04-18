@@ -82,7 +82,8 @@ export default function PendingPlanCard({ plan }) {
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-lg font-semibold text-gray-800">{plan.title}</h3>
 
-        <div className="flex items-center gap-3">
+        {/* Button Group */}
+        <div className="flex items-center gap-1">
 
           {/* Calendar Button */}
           <div className="relative flex items-center justify-center">
@@ -93,7 +94,7 @@ export default function PendingPlanCard({ plan }) {
                 setIsOptionsOpen(false);
               }}
               disabled={loading}
-              className="text-gray-500 hover:text-gray-700 transition"
+              className="text-gray-500 hover:text-gray-700 transition p-2"
               title="Due Date"
             >
               <FiCalendar size={20} />
@@ -115,11 +116,11 @@ export default function PendingPlanCard({ plan }) {
           </div>
 
           {/* Play Button */}
-          <div className="flex items-center justify-center relative">
+          <div className="relative flex items-center justify-center">
             <button
               onClick={handleStartLearning}
               disabled={loading}
-              className="text-gray-500 hover:text-gray-700 transition"
+              className="text-gray-500 hover:text-gray-700 transition p-2"
               title="Start Learning Plan"
             >
               <FiPlay size={20} />
@@ -133,7 +134,7 @@ export default function PendingPlanCard({ plan }) {
                 setIsOptionsOpen(prev => !prev);
                 setOpen(false);
               }}
-              className="text-gray-500 hover:text-gray-700 transition"
+              className="text-gray-500 hover:text-gray-700 transition p-2"
               title="More Options"
             >
               <FiMoreVertical size={20} />
