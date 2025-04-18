@@ -10,6 +10,7 @@ export default function PendingPlanCard({ plan }) {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const [isExpanded, setIsExpanded] = useState(false); // NEW
 
   const navigate = useNavigate();
 
@@ -77,8 +78,15 @@ export default function PendingPlanCard({ plan }) {
     };
   }, [open, isOptionsOpen]);
 
+  const handleCardClick = () => {
+    setIsExpanded(prev => !prev);
+  };
+
   return (
-    <div className="bg-white p-4 rounded shadow hover:shadow-lg transition relative">
+    <div
+      onClick={handleCardClick}
+      className="bg-white p-4 rounded shadow hover:shadow-lg transition relative cursor-pointer"
+    >
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-lg font-semibold text-gray-800">{plan.title}</h3>
 
@@ -89,7 +97,8 @@ export default function PendingPlanCard({ plan }) {
           <div className="relative flex items-center justify-center">
             <button
               ref={buttonRef}
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setOpen((prev) => !prev);
                 setIsOptionsOpen(false);
               }}
@@ -118,7 +127,10 @@ export default function PendingPlanCard({ plan }) {
           {/* Play Button */}
           <div className="relative flex items-center justify-center">
             <button
-              onClick={handleStartLearning}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleStartLearning();
+              }}
               disabled={loading}
               className="text-gray-500 hover:text-gray-700 transition p-2"
               title="Start Learning Plan"
@@ -130,7 +142,8 @@ export default function PendingPlanCard({ plan }) {
           {/* More Options Button */}
           <div className="relative flex items-center justify-center">
             <button
-              onClick={() => {
+              onClick={(e) => {
+                e.stopPropagation();
                 setIsOptionsOpen(prev => !prev);
                 setOpen(false);
               }}
@@ -146,13 +159,19 @@ export default function PendingPlanCard({ plan }) {
                 className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-36 bg-white border border-gray-300 rounded shadow-lg z-50 py-2"
               >
                 <button
-                  onClick={handleEdit}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleEdit();
+                  }}
                   className="w-full text-left text-gray-700 hover:bg-gray-100 px-4 py-2 text-sm"
                 >
                   Edit
                 </button>
                 <button
-                  onClick={handleDelete}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDelete();
+                  }}
                   className="w-full text-left text-red-600 hover:bg-gray-100 hover:text-red-700 px-4 py-2 text-sm"
                 >
                   Delete
@@ -175,6 +194,13 @@ export default function PendingPlanCard({ plan }) {
           {dueDate ? `Due: ${dueDate.toLocaleDateString()}` : 'No due date'}
         </p>
       </div>
+
+      {/* Expandable Description */}
+      {isExpanded && (
+        <div className="mt-4 text-sm text-gray-600">
+          {plan.description || 'No description available.'}
+        </div>
+      )}
     </div>
   );
 }
