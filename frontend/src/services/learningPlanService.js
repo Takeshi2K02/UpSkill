@@ -52,3 +52,22 @@ export async function getLearningPlanById(id) {
     throw error;
   }
 }
+
+export async function updateLearningPlanDueDate(planId, dueDateIsoString) {
+  try {
+    const response = await fetch(`${BASE_URL}/${planId}/due-date`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dueDate: dueDateIsoString }), // <-- Corrected
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update due date');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating due date:', error);
+    throw error;
+  }
+}

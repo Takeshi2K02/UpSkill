@@ -34,7 +34,7 @@ function App() {
         <Route path="/learning-plans/create" element={<PrivateRoute><CreateLearningPlan /></PrivateRoute>} />
         <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
         <Route path="/learning-plans" element={<PrivateRoute><LearningPlans /></PrivateRoute>} />
-        <Route path="/learning-plans/:id" element={<PrivateRoute><LearningPlanDetail /></PrivateRoute>} />
+        <Route path="/learning-plan/:id" element={<PrivateRoute><LearningPlanDetail /></PrivateRoute>} />
       </Routes>
     </div>
   );

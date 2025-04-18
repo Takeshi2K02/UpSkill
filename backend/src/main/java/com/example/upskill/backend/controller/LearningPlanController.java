@@ -4,6 +4,7 @@ import com.example.upskill.backend.model.LearningPlan;
 import com.example.upskill.backend.repository.LearningPlanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import com.example.upskill.backend.dto.UpdateDueDateRequest;
 
 import java.time.Instant;
 import java.util.List;
@@ -36,4 +37,18 @@ public class LearningPlanController {
         return repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Learning Plan not found with id: " + id));
     }
+
+    // PATCH: Update due date of a learning plan
+     @PatchMapping("/{id}/due-date")
+     public LearningPlan updateDueDate(@PathVariable String id, @RequestBody UpdateDueDateRequest request) {
+         LearningPlan plan = repository.findById(id)
+                 .orElseThrow(() -> new RuntimeException("Learning Plan not found with id: " + id));
+     
+         Instant dueDate = Instant.parse(request.getDueDate());
+         plan.setDueDate(dueDate);
+         plan.setUpdatedAt(Instant.now());
+     
+         return repository.save(plan);
+     }
 }
+    

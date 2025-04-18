@@ -3,6 +3,9 @@ import { getLearningPlansByUser } from '../services/learningPlanService';
 import { FiPlus } from 'react-icons/fi';
 import CommonLayout from '../layouts/CommonLayout';
 import { Link } from 'react-router-dom';
+import PendingPlanCard from '../components/PendingPlanCard';
+import CurrentPlanCard from '../components/CurrentPlanCard';
+import CompletedPlanCard from '../components/CompletedPlanCard';
 
 export default function LearningPlans() {
   const [plans, setPlans] = useState([]);
@@ -41,29 +44,6 @@ export default function LearningPlans() {
     fetchPlans();
   }, []);
 
-  const renderPlanCard = (plan) => {
-    const planId = plan._id?.$oid || plan.id; // fallback safely
-
-    if (!planId) return null; // safety check
-
-    return (
-      <Link to={`/learning-plans/${planId}`} key={planId}>
-        <div className="bg-white p-4 rounded shadow hover:shadow-md transition">
-          <div className="flex items-center justify-between mb-2">
-            <h3 className="text-lg font-semibold text-gray-800">{plan.title}</h3>
-          </div>
-          <div className="w-full h-2 bg-gray-200 rounded mb-2">
-            {/* Progress bar will be added later */}
-          </div>
-          <p className="text-sm text-gray-600">
-            Due: {plan.dueDate ? new Date(plan.dueDate).toLocaleDateString() : 'No due date'}
-          </p>
-        </div>
-      </Link>
-    );
-  };
-
-
   return (
     <CommonLayout>
       <div className="bg-white p-6">
@@ -85,7 +65,9 @@ export default function LearningPlans() {
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Pending Plans</h3>
                 <div className="space-y-4">
-                  {pendingPlans.map(renderPlanCard)}
+                  {pendingPlans.map(plan => (
+                    <PendingPlanCard key={plan._id?.$oid || plan.id} plan={plan} />
+                  ))}
                 </div>
               </div>
             )}
@@ -94,7 +76,9 @@ export default function LearningPlans() {
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Current Plans</h3>
                 <div className="space-y-4">
-                  {currentPlans.map(renderPlanCard)}
+                  {currentPlans.map(plan => (
+                    <CurrentPlanCard key={plan._id?.$oid || plan.id} plan={plan} />
+                  ))}
                 </div>
               </div>
             )}
@@ -103,7 +87,9 @@ export default function LearningPlans() {
               <div>
                 <h3 className="text-xl font-semibold text-gray-800 mb-4">Completed Plans</h3>
                 <div className="space-y-4">
-                  {completedPlans.map(renderPlanCard)}
+                  {completedPlans.map(plan => (
+                    <CompletedPlanCard key={plan._id?.$oid || plan.id} plan={plan} />
+                  ))}
                 </div>
               </div>
             )}
