@@ -71,3 +71,22 @@ export async function updateLearningPlanDueDate(planId, dueDateIsoString) {
     throw error;
   }
 }
+
+export async function updateTopicStatus(planId, topicIndex, newStatus) {
+  try {
+    const response = await fetch(`${BASE_URL}/${planId}/topics/${topicIndex}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update topic status');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating topic status:', error);
+    throw error;
+  }
+}

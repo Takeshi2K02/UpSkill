@@ -5,6 +5,7 @@ import com.example.upskill.backend.repository.LearningPlanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import com.example.upskill.backend.dto.UpdateDueDateRequest;
+import com.example.upskill.backend.dto.StatusUpdateRequest;
 
 import java.time.Instant;
 import java.util.List;
@@ -50,5 +51,24 @@ public class LearningPlanController {
      
          return repository.save(plan);
      }
+
+    @PatchMapping("/{planId}/topics/{topicIndex}")
+    public LearningPlan updateTopicStatus(
+            @PathVariable String planId,
+            @PathVariable int topicIndex,
+            @RequestBody StatusUpdateRequest request) {
+
+        LearningPlan plan = repository.findById(planId)
+                .orElseThrow(() -> new RuntimeException("Learning Plan not found with id: " + planId));
+
+        if (topicIndex < 0 || topicIndex >= plan.getTopics().size()) {
+            throw new RuntimeException("Invalid topic index: " + topicIndex);
+        }
+
+        plan.getTopics().get(topicIndex).setStatus(request.getStatus());
+        plan.setUpdatedAt(Instant.now());
+
+        return repository.save(plan);
+    }
 }
     

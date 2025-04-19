@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import CommonLayout from '../layouts/CommonLayout';
-import { getLearningPlanById } from '../services/learningPlanService';
+import { getLearningPlanById, updateTopicStatus } from '../services/learningPlanService';
 
 export default function LearningPlanDetail() {
   const { id } = useParams();
@@ -37,9 +37,36 @@ export default function LearningPlanDetail() {
             <div className="space-y-4">
               {plan.topics && plan.topics.length > 0 ? (
                 plan.topics.map((topic, idx) => (
-                  <div key={idx} className="bg-gray-100 p-4 rounded">
-                    <h4 className="font-semibold text-gray-800">{topic.name}</h4>
-                    <p className="text-sm text-gray-600 mt-2">{topic.textContent}</p>
+                  <div key={idx} className="bg-gray-100 p-4 rounded flex items-start gap-2">
+                    <input
+                      type="checkbox"
+                      checked={topic.status === 'completed'}
+                      onChange={async () => {
+                        const newStatus = topic.status === 'completed' ? 'incomplete' : 'completed';
+                        
+                        // Update local plan state for immediate UI feedback
+                        setPlan(prevPlan => {
+                          const updatedTopics = prevPlan.topics.map((t, i) => {
+                            if (i === idx) {
+                              return { ...t, status: newStatus };
+                            }
+                            return t;
+                          });
+                          return { ...prevPlan, topics: updatedTopics };
+                        });
+
+                        try {
+                          await updateTopicStatus(id, idx, newStatus);
+                        } catch (error) {
+                          console.error('Failed to update topic status:', error);
+                        }
+                      }}
+                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
+                    />
+                    <div>
+                      <h4 className="font-semibold text-gray-800">{topic.name}</h4>
+                      <p className="text-sm text-gray-600 mt-2">{topic.textContent}</p>
+                    </div>
                   </div>
                 ))
               ) : (

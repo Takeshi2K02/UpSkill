@@ -170,14 +170,17 @@ export default function CreateLearningPlan() {
       alert('User not logged in.');
       return;
     }
-
+  
     const learningPlan = {
       userId,
       title: selectedTitle,
       description,
-      topics: normalizeWeights(topics),
+      topics: normalizeWeights(topics).map(topic => ({
+        ...topic,
+        status: 'incomplete',
+      })),
     };
-
+  
     try {
       setLoading(true);
       await createLearningPlan(learningPlan);
@@ -188,7 +191,7 @@ export default function CreateLearningPlan() {
     } finally {
       setLoading(false);
     }
-  };
+  };  
 
   return (
     <CommonLayout>
