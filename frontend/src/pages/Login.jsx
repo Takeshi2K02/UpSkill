@@ -43,12 +43,18 @@ const Login = () => {
             .then((data) => {
               console.log("✅ Login Success:", data);
 
-              // Store tokens & user info
               sessionStorage.setItem("jwtToken", data.token);
-              sessionStorage.setItem("facebookAccessToken", data.facebookAccessToken); // ✅
-              sessionStorage.setItem("facebookId", data.user.id); // ✅
+              sessionStorage.setItem("facebookAccessToken", data.facebookAccessToken);
+              sessionStorage.setItem("facebookId", data.user.id);
+              sessionStorage.setItem("role", data.user.role); // ➡️ Store role
               login(data.user, data.token);
-              navigate("/");
+
+              // ➡️ Redirect based on role
+              if (data.user.role === "ADMIN") {
+                navigate("/admin-dashboard");
+              } else {
+                navigate("/");
+              }
             });
         } else {
           console.log("❌ Login failed:", response);
