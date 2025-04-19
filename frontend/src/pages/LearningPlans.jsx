@@ -15,12 +15,12 @@ export default function LearningPlans() {
   const currentPlans = plans.filter(plan => {
     if (!plan.dueDate) return false;
     const totalTopics = plan.topics?.length || 0;
-    const completedTopics = plan.topics?.filter(t => t.status === 'COMPLETED').length || 0;
+    const completedTopics = plan.topics?.filter(t => t.status === 'completed').length || 0;
     return completedTopics < totalTopics;
   });
   const completedPlans = plans.filter(plan => {
     const totalTopics = plan.topics?.length || 0;
-    const completedTopics = plan.topics?.filter(t => t.status === 'COMPLETED').length || 0;
+    const completedTopics = plan.topics?.filter(t => t.status === 'completed').length || 0;
     return totalTopics > 0 && completedTopics === totalTopics;
   });
 
