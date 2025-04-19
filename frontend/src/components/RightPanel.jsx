@@ -82,8 +82,10 @@ export default function RightPanel() {
 
                 return (
                   <li key={plan._id?.$oid || plan.id}>
-                    <span className="block font-medium">{plan.title}</span>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <span className="block font-medium truncate w-full" title={plan.title}>
+                      {plan.title}
+                    </span>
+                    <div className="w-full bg-gray-200 rounded-full h-2 mt-1">
                       <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${progress}%` }} />
                     </div>
                   </li>
