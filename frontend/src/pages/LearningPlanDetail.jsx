@@ -23,6 +23,26 @@ export default function LearningPlanDetail() {
     fetchPlan();
   }, [id]);
 
+  // Progress calculation based on topic weights
+  const calculateProgress = (plan) => {
+    if (!plan || !plan.topics || plan.topics.length === 0) return 0;
+
+    let totalWeight = 0;
+    let completedWeight = 0;
+
+    for (const topic of plan.topics) {
+      const weight = topic.weight || 0;
+      totalWeight += weight;
+      if (topic.status === 'completed') {
+        completedWeight += weight;
+      }
+    }
+
+    if (totalWeight === 0) return 0;
+
+    return Math.round((completedWeight / totalWeight) * 100);
+  };
+
   return (
     <CommonLayout>
       <div className="p-6 bg-white min-h-screen">
@@ -31,6 +51,20 @@ export default function LearningPlanDetail() {
         ) : plan ? (
           <>
             <h2 className="text-2xl font-bold text-blue-700 mb-6">{plan.title}</h2>
+
+            {/* Progress Bar */}
+            <div className="mb-6">
+              <p className="text-sm text-gray-600">
+                Progress: {calculateProgress(plan)}%
+              </p>
+              <div className="w-full h-2 bg-gray-200 rounded mt-2">
+                <div
+                  className="h-full bg-blue-500 rounded"
+                  style={{ width: `${calculateProgress(plan)}%` }}
+                />
+              </div>
+            </div>
+
             <p className="text-gray-700 mb-4">{plan.description}</p>
 
             <h3 className="text-xl font-semibold text-gray-800 mb-3">Topics</h3>

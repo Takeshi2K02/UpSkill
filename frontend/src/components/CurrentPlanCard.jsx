@@ -44,8 +44,29 @@ export default function CurrentPlanCard({ plan }) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [isOptionsOpen]);
 
-  // Get dueDate safely
   const dueDate = plan.dueDate ? new Date(plan.dueDate) : null;
+
+  // Calculate progress based on topics
+  const calculateProgress = (plan) => {
+    if (!plan || !plan.topics || plan.topics.length === 0) return 0;
+
+    let totalWeight = 0;
+    let completedWeight = 0;
+
+    for (const topic of plan.topics) {
+      const weight = topic.weight || 0;
+      totalWeight += weight;
+      if (topic.status === 'completed') {
+        completedWeight += weight;
+      }
+    }
+
+    if (totalWeight === 0) return 0;
+
+    return Math.round((completedWeight / totalWeight) * 100);
+  };
+
+  const progress = calculateProgress(plan);
 
   return (
     <div
@@ -58,7 +79,6 @@ export default function CurrentPlanCard({ plan }) {
 
         {/* Play and More Options */}
         <div className="flex items-center gap-2">
-
           {/* Play Button */}
           <button
             onClick={(e) => {
@@ -110,7 +130,6 @@ export default function CurrentPlanCard({ plan }) {
               </div>
             )}
           </div>
-
         </div>
       </div>
 
@@ -118,7 +137,7 @@ export default function CurrentPlanCard({ plan }) {
       <div className="w-full h-2 bg-gray-200 rounded mb-2">
         <div
           className="bg-blue-500 h-full rounded"
-          style={{ width: `0%` }} // We'll calculate progress later dynamically
+          style={{ width: `${progress}%` }}
         />
       </div>
 

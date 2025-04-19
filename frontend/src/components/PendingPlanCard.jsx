@@ -10,15 +10,31 @@ export default function PendingPlanCard({ plan }) {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
-  const [isExpanded, setIsExpanded] = useState(false); // NEW
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const navigate = useNavigate();
-
   const buttonRef = useRef(null);
   const calendarRef = useRef(null);
   const optionsRef = useRef(null);
 
   const planId = plan._id?.$oid || plan.id;
+
+  const calculateProgress = (plan) => {
+    if (!plan || !plan.topics || plan.topics.length === 0) return 0;
+    let totalWeight = 0;
+    let completedWeight = 0;
+    for (const topic of plan.topics) {
+      const weight = topic.weight || 0;
+      totalWeight += weight;
+      if (topic.status === 'completed') {
+        completedWeight += weight;
+      }
+    }
+    if (totalWeight === 0) return 0;
+    return Math.round((completedWeight / totalWeight) * 100);
+  };
+
+  const progress = calculateProgress(plan);
 
   const handleDateSelect = (date) => {
     if (!date) return;
@@ -31,7 +47,6 @@ export default function PendingPlanCard({ plan }) {
       alert('Please select a due date first!');
       return;
     }
-
     try {
       setLoading(true);
       const dueDateIsoString = dueDate.toISOString();
@@ -83,17 +98,11 @@ export default function PendingPlanCard({ plan }) {
   };
 
   return (
-    <div
-      onClick={handleCardClick}
-      className="bg-white p-4 rounded shadow hover:shadow-lg transition relative cursor-pointer"
-    >
+    <div onClick={handleCardClick} className="bg-white p-4 rounded shadow hover:shadow-lg transition relative cursor-pointer">
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-lg font-semibold text-gray-800">{plan.title}</h3>
 
-        {/* Button Group */}
         <div className="flex items-center gap-1">
-
-          {/* Calendar Button */}
           <div className="relative flex items-center justify-center">
             <button
               ref={buttonRef}
@@ -110,10 +119,7 @@ export default function PendingPlanCard({ plan }) {
             </button>
 
             {open && (
-              <div
-                ref={calendarRef}
-                className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50"
-              >
+              <div ref={calendarRef} className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 z-50">
                 <DatePicker
                   selected={dueDate}
                   onChange={handleDateSelect}
@@ -124,7 +130,6 @@ export default function PendingPlanCard({ plan }) {
             )}
           </div>
 
-          {/* Play Button */}
           <div className="relative flex items-center justify-center">
             <button
               onClick={(e) => {
@@ -139,7 +144,6 @@ export default function PendingPlanCard({ plan }) {
             </button>
           </div>
 
-          {/* More Options Button */}
           <div className="relative flex items-center justify-center">
             <button
               onClick={(e) => {
@@ -154,48 +158,25 @@ export default function PendingPlanCard({ plan }) {
             </button>
 
             {isOptionsOpen && (
-              <div
-                ref={optionsRef}
-                className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-36 bg-white border border-gray-300 rounded shadow-lg z-50 py-2"
-              >
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleEdit();
-                  }}
-                  className="w-full text-left text-gray-700 hover:bg-gray-100 px-4 py-2 text-sm"
-                >
-                  Edit
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDelete();
-                  }}
-                  className="w-full text-left text-red-600 hover:bg-gray-100 hover:text-red-700 px-4 py-2 text-sm"
-                >
-                  Delete
-                </button>
+              <div ref={optionsRef} className="absolute top-full left-1/2 transform -translate-x-1/2 mt-2 w-36 bg-white border border-gray-300 rounded shadow-lg z-50 py-2">
+                <button onClick={(e) => { e.stopPropagation(); handleEdit(); }} className="w-full text-left text-gray-700 hover:bg-gray-100 px-4 py-2 text-sm">Edit</button>
+                <button onClick={(e) => { e.stopPropagation(); handleDelete(); }} className="w-full text-left text-red-600 hover:bg-gray-100 hover:text-red-700 px-4 py-2 text-sm">Delete</button>
               </div>
             )}
           </div>
-
         </div>
       </div>
 
-      {/* Progress Bar */}
       <div className="w-full h-2 bg-gray-200 rounded mb-2">
-        <div className="bg-blue-500 h-full rounded" style={{ width: `0%` }} />
+        <div className="bg-blue-500 h-full rounded" style={{ width: `${progress}%` }} />
       </div>
 
-      {/* Due Date Display */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-600">
           {dueDate ? `Due: ${dueDate.toLocaleDateString()}` : 'No due date'}
         </p>
       </div>
 
-      {/* Expandable Description */}
       {isExpanded && (
         <div className="mt-4 text-sm text-gray-600">
           {plan.description || 'No description available.'}

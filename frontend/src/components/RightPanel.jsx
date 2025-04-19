@@ -1,15 +1,58 @@
-// src/components/RightPanel.jsx
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import { getLearningPlansByUser } from '../services/learningPlanService'; // <-- import service
 
 export default function RightPanel() {
   const [users, setUsers] = useState([]);
+  const [currentPlans, setCurrentPlans] = useState([]);
   const accessToken = sessionStorage.getItem('facebookAccessToken');
+  const userId = sessionStorage.getItem('facebookId');
 
   useEffect(() => {
-    axios.get('http://localhost:8080/api/users')
-      .then(res => setUsers(res.data))
-      .catch(err => console.error('Failed to fetch users:', err));
+    async function fetchCurrentPlans() {
+      try {
+        const allPlans = await getLearningPlansByUser(userId);
+
+        const calculateProgress = (plan) => {
+          if (!plan || !plan.topics || plan.topics.length === 0) return 0;
+          let totalWeight = 0;
+          let completedWeight = 0;
+          for (const topic of plan.topics) {
+            const weight = topic.weight || 0;
+            totalWeight += weight;
+            if (topic.status === 'completed') {
+              completedWeight += weight;
+            }
+          }
+          if (totalWeight === 0) return 0;
+          return Math.round((completedWeight / totalWeight) * 100);
+        };
+
+        const filtered = allPlans.filter(plan => {
+          const progress = calculateProgress(plan);
+          return plan.dueDate && progress < 100;
+        });
+
+        setCurrentPlans(filtered);
+      } catch (error) {
+        console.error('Failed to fetch learning plans:', error);
+      }
+    }
+
+    fetchCurrentPlans();
+  }, [userId]);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const response = await fetch('http://localhost:8080/api/users');
+        const data = await response.json();
+        setUsers(data);
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+      }
+    }
+
+    fetchUsers();
   }, []);
 
   return (
@@ -21,18 +64,34 @@ export default function RightPanel() {
           <h3 className="text-sm font-semibold text-gray-700 mb-3">Progress</h3>
           <div className="flex-1 overflow-hidden hover:overflow-y-auto scrollbar-hide">
             <ul className="space-y-3 text-sm pb-2">
-              <li>
-                <span className="block font-medium">Python Basics</span>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: '70%' }} />
-                </div>
-              </li>
-              <li>
-                <span className="block font-medium">React Fundamentals</span>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '40%' }} />
-                </div>
-              </li>
+              {currentPlans.map(plan => {
+                const progress = (function() {
+                  if (!plan.topics || plan.topics.length === 0) return 0;
+                  let totalWeight = 0;
+                  let completedWeight = 0;
+                  for (const topic of plan.topics) {
+                    const weight = topic.weight || 0;
+                    totalWeight += weight;
+                    if (topic.status === 'completed') {
+                      completedWeight += weight;
+                    }
+                  }
+                  if (totalWeight === 0) return 0;
+                  return Math.round((completedWeight / totalWeight) * 100);
+                })();
+
+                return (
+                  <li key={plan._id?.$oid || plan.id}>
+                    <span className="block font-medium">{plan.title}</span>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${progress}%` }} />
+                    </div>
+                  </li>
+                );
+              })}
+              {currentPlans.length === 0 && (
+                <li className="text-gray-400 text-sm">No active learning plans</li>
+              )}
             </ul>
           </div>
         </div>
