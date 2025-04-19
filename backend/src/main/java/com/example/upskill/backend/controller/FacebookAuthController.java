@@ -41,12 +41,19 @@ public class FacebookAuthController {
 
             user.setId(id);
             user.setName(name);
-            userRepository.save(user); // Create or update
 
-            // Generate JWT
+            // If new user, set default role
+            if (user.getRole() == null) {
+                user.setRole("USER");
+            }
+
+            userRepository.save(user);
+
+            // Generate JWT with role
             String jwt = Jwts.builder()
                     .setSubject(id)
                     .claim("name", name)
+                    .claim("role", user.getRole()) // ➡️ include role in token
                     .setIssuedAt(new Date())
                     .setExpiration(new Date(System.currentTimeMillis() + 86400000)) // 1 day
                     .signWith(SignatureAlgorithm.HS256, "adfc105ad1564b1fb3409fea30fe4dac")
@@ -55,10 +62,11 @@ public class FacebookAuthController {
             return ResponseEntity.ok(Map.of(
                     "message", "Facebook login verified",
                     "token", jwt,
-                    "facebookAccessToken", accessToken, // ✅ Return FB token
+                    "facebookAccessToken", accessToken,
                     "user", Map.of(
                             "id", id,
-                            "name", name
+                            "name", name,
+                            "role", user.getRole()
                     )
             ));
 

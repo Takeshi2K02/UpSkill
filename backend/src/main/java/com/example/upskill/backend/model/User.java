@@ -7,9 +7,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class User {
 
     @Id
-    private String id; // Facebook ID
-
+    private String id;
     private String name;
+    private String role = "USER";
 
     // Constructors
     public User() {}
@@ -34,5 +34,13 @@ public class User {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
     }
 }
