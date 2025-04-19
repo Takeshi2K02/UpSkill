@@ -21,7 +21,7 @@ export default function CurrentPlanCard({ plan }) {
 
   const handleEdit = () => {
     navigate(`/learning-plan/edit/${planId}`);
-  };  
+  };
 
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this learning plan?')) {
@@ -46,13 +46,10 @@ export default function CurrentPlanCard({ plan }) {
 
   const dueDate = plan.dueDate ? new Date(plan.dueDate) : null;
 
-  // Calculate progress based on topics
   const calculateProgress = (plan) => {
     if (!plan || !plan.topics || plan.topics.length === 0) return 0;
-
     let totalWeight = 0;
     let completedWeight = 0;
-
     for (const topic of plan.topics) {
       const weight = topic.weight || 0;
       totalWeight += weight;
@@ -60,9 +57,7 @@ export default function CurrentPlanCard({ plan }) {
         completedWeight += weight;
       }
     }
-
     if (totalWeight === 0) return 0;
-
     return Math.round((completedWeight / totalWeight) * 100);
   };
 
@@ -71,11 +66,11 @@ export default function CurrentPlanCard({ plan }) {
   return (
     <div
       onClick={handleCardClick}
-      className="bg-white p-4 rounded shadow hover:shadow-lg transition relative cursor-pointer"
+      className="bg-white border border-gray-200 rounded-2xl p-5 shadow-md hover:shadow-xl transition-all cursor-pointer"
     >
       {/* Title and Buttons */}
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-lg font-semibold text-gray-800">{plan.title}</h3>
+        <h3 className="text-xl font-semibold text-gray-800 truncate">{plan.title}</h3>
 
         {/* Play and More Options */}
         <div className="flex items-center gap-2">
@@ -150,7 +145,7 @@ export default function CurrentPlanCard({ plan }) {
 
       {/* Expandable Description */}
       {isExpanded && (
-        <div className="mt-4 text-sm text-gray-600">
+        <div className="mt-3 text-sm text-gray-600 leading-relaxed">
           {plan.description || 'No description available.'}
         </div>
       )}

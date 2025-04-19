@@ -19,23 +19,6 @@ export default function PendingPlanCard({ plan }) {
 
   const planId = plan._id?.$oid || plan.id;
 
-  const calculateProgress = (plan) => {
-    if (!plan || !plan.topics || plan.topics.length === 0) return 0;
-    let totalWeight = 0;
-    let completedWeight = 0;
-    for (const topic of plan.topics) {
-      const weight = topic.weight || 0;
-      totalWeight += weight;
-      if (topic.status === 'completed') {
-        completedWeight += weight;
-      }
-    }
-    if (totalWeight === 0) return 0;
-    return Math.round((completedWeight / totalWeight) * 100);
-  };
-
-  const progress = calculateProgress(plan);
-
   const handleDateSelect = (date) => {
     if (!date) return;
     setDueDate(date);
@@ -106,10 +89,11 @@ export default function PendingPlanCard({ plan }) {
   return (
     <div
       onClick={handleCardClick}
-      className="bg-white p-4 rounded shadow hover:shadow-lg transition relative cursor-pointer"
+      className="bg-white border border-gray-200 rounded-2xl p-5 shadow-md hover:shadow-xl transition-all cursor-pointer"
     >
+      {/* Title and Buttons */}
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-lg font-semibold text-gray-800">{plan.title}</h3>
+        <h3 className="text-xl font-semibold text-gray-800 truncate">{plan.title}</h3>
 
         <div className="flex items-center gap-1">
           {/* Calendar Button */}
@@ -195,14 +179,6 @@ export default function PendingPlanCard({ plan }) {
         </div>
       </div>
 
-      {/* Progress Bar */}
-      <div className="w-full h-2 bg-gray-200 rounded mb-2">
-        <div
-          className="bg-blue-500 h-full rounded"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
-
       {/* Due Date */}
       <div className="flex items-center justify-between">
         <p className="text-sm text-gray-600">
@@ -212,7 +188,7 @@ export default function PendingPlanCard({ plan }) {
 
       {/* Expandable Description */}
       {isExpanded && (
-        <div className="mt-4 text-sm text-gray-600">
+        <div className="mt-4 text-sm text-gray-600 leading-relaxed">
           {plan.description || 'No description available.'}
         </div>
       )}
