@@ -109,3 +109,20 @@ export async function updateLearningPlan(id, updatedPlan) {
     throw error;
   }
 }
+
+export async function deleteLearningPlan(id) {
+  try {
+    const response = await fetch(`${BASE_URL}/${id}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to delete learning plan');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error deleting learning plan:', error);
+    throw error;
+  }
+}

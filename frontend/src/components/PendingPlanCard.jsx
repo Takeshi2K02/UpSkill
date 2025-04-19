@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { updateLearningPlanDueDate } from '../services/learningPlanService';
+import { updateLearningPlanDueDate, deleteLearningPlan } from '../services/learningPlanService';
 import { FiCalendar, FiPlay, FiMoreVertical } from 'react-icons/fi';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -47,11 +47,18 @@ export default function PendingPlanCard({ plan }) {
     alert('Edit Learning Plan (to be implemented)');
   };
 
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this learning plan?')) {
-      alert('Deleted Learning Plan (to be implemented)');
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this learning plan?')) return;
+  
+    try {
+      await deleteLearningPlan(plan._id?.$oid || plan.id);
+      alert('Learning plan deleted successfully!');
+      window.location.reload(); // simple full reload to update list
+    } catch (error) {
+      console.error('Failed to delete learning plan:', error);
+      alert('Failed to delete learning plan.');
     }
-  };
+  };  
 
   useEffect(() => {
     function handleClickOutside(event) {

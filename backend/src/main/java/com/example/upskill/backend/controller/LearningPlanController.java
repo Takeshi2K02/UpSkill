@@ -84,5 +84,13 @@ public class LearningPlanController {
 
         return repository.save(existingPlan);
     }
+
+    @DeleteMapping("/{id}")
+    public void deleteLearningPlan(@PathVariable String id) {
+        if (!repository.existsById(id)) {
+            throw new RuntimeException("Learning Plan not found with id: " + id);
+        }
+        repository.deleteById(id);
+    }
 }
     

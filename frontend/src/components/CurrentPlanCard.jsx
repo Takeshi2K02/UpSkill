@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlay, FiMoreVertical } from 'react-icons/fi';
+import { deleteLearningPlan } from '../services/learningPlanService';
 
 export default function CurrentPlanCard({ plan }) {
   const navigate = useNavigate();
@@ -23,11 +24,18 @@ export default function CurrentPlanCard({ plan }) {
     navigate(`/learning-plan/edit/${planId}`);
   };
 
-  const handleDelete = () => {
-    if (window.confirm('Are you sure you want to delete this learning plan?')) {
-      alert('Deleted Learning Plan (to be implemented)');
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this learning plan?')) return;
+  
+    try {
+      await deleteLearningPlan(plan._id?.$oid || plan.id);
+      alert('Learning plan deleted successfully!');
+      window.location.reload(); // simple full reload to update list
+    } catch (error) {
+      console.error('Failed to delete learning plan:', error);
+      alert('Failed to delete learning plan.');
     }
-  };
+  };  
 
   useEffect(() => {
     function handleClickOutside(event) {
