@@ -90,3 +90,22 @@ export async function updateTopicStatus(planId, topicIndex, newStatus) {
     throw error;
   }
 }
+
+export async function updateLearningPlan(id, updatedPlan) {
+  try {
+    const response = await fetch(`${BASE_URL}/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(updatedPlan),
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to update learning plan');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Error updating learning plan:', error);
+    throw error;
+  }
+}

@@ -7,8 +7,7 @@ import Home from './pages/Home';
 import LearningPlans from './pages/LearningPlans';
 import CreateLearningPlan from './pages/CreateLearningPlan';
 import LearningPlanDetail from './pages/LearningPlanDetail';
-
-CreateLearningPlan
+import EditLearningPlan from './pages/EditLearningPlan';
 
 function App() {
   const { user, logout } = useContext(AuthContext);
@@ -35,6 +34,7 @@ function App() {
         <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
         <Route path="/learning-plans" element={<PrivateRoute><LearningPlans /></PrivateRoute>} />
         <Route path="/learning-plan/:id" element={<PrivateRoute><LearningPlanDetail /></PrivateRoute>} />
+        <Route path="/learning-plan/edit/:id" element={<PrivateRoute><EditLearningPlan /></PrivateRoute>} />
       </Routes>
     </div>
   );

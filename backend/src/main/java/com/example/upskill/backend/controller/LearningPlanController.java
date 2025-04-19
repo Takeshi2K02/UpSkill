@@ -70,5 +70,19 @@ public class LearningPlanController {
 
         return repository.save(plan);
     }
+
+    @PutMapping("/{id}")
+    public LearningPlan updateLearningPlan(@PathVariable String id, @RequestBody LearningPlan updatedPlan) {
+        LearningPlan existingPlan = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Learning Plan not found with id: " + id));
+
+        existingPlan.setTitle(updatedPlan.getTitle());
+        existingPlan.setDescription(updatedPlan.getDescription());
+        existingPlan.setTopics(updatedPlan.getTopics());
+        existingPlan.setDueDate(updatedPlan.getDueDate());
+        existingPlan.setUpdatedAt(Instant.now());
+
+        return repository.save(existingPlan);
+    }
 }
     

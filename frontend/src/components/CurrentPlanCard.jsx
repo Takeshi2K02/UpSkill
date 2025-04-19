@@ -20,8 +20,8 @@ export default function CurrentPlanCard({ plan }) {
   };
 
   const handleEdit = () => {
-    alert('Edit Learning Plan (to be implemented)');
-  };
+    navigate(`/learning-plan/edit/${planId}`);
+  };  
 
   const handleDelete = () => {
     if (window.confirm('Are you sure you want to delete this learning plan?')) {
