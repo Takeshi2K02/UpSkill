@@ -11,6 +11,8 @@ import LearningPlanDetail from './pages/LearningPlanDetail';
 import EditLearningPlan from './pages/EditLearningPlan';
 import AdminDashboard from './pages/AdminDashboard';
 import Unauthorized from './pages/Unauthorized';
+import Profile from './pages/Profile';
+
 
 function App() {
   const { user, logout } = useContext(AuthContext);
@@ -37,10 +39,10 @@ function App() {
         {/* Private Routes for logged in users */}
         <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
         <Route path="/learning-plans" element={<PrivateRoute><LearningPlans /></PrivateRoute>} />
+        <Route path="/profile/:userId" element={<Profile />} />
         <Route path="/learning-plans/create" element={<PrivateRoute><CreateLearningPlan /></PrivateRoute>} />
         <Route path="/learning-plan/:id" element={<PrivateRoute><LearningPlanDetail /></PrivateRoute>} />
         <Route path="/learning-plan/edit/:id" element={<PrivateRoute><EditLearningPlan /></PrivateRoute>} />
-
         {/* Admin-only routes */}
         <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
 
