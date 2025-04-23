@@ -41,7 +41,7 @@ export default function LeftPanel() {
             <MessageCircle size={18} /> Chatbot
           </NavLink>
           <NavLink
-            to="/community"
+            to="/groups"
             className="flex items-center gap-3 p-2 rounded-md hover:bg-blue-50 transition"
           >
             <Users size={18} /> Community

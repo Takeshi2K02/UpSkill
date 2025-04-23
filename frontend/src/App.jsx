@@ -12,6 +12,9 @@ import EditLearningPlan from './pages/EditLearningPlan';
 import AdminDashboard from './pages/AdminDashboard';
 import Unauthorized from './pages/Unauthorized';
 import Profile from './pages/Profile';
+import GroupsList from './components/GroupsList';
+import GroupDetail from './pages/GroupDetail';
+import GroupForm from './pages/GroupForm';
 
 
 function App() {
@@ -43,6 +46,15 @@ function App() {
         <Route path="/learning-plans/create" element={<PrivateRoute><CreateLearningPlan /></PrivateRoute>} />
         <Route path="/learning-plan/:id" element={<PrivateRoute><LearningPlanDetail /></PrivateRoute>} />
         <Route path="/learning-plan/edit/:id" element={<PrivateRoute><EditLearningPlan /></PrivateRoute>} />
+
+        {/* Community Groups - all logged-in users */}
+        <Route path="/groups" element={<PrivateRoute><GroupsList /></PrivateRoute>} />
+        <Route path="/groups/:id" element={<PrivateRoute><GroupDetail /></PrivateRoute>} />
+
+        {/* Community Groups - admin only */}
+        <Route path="/groups/create" element={<AdminRoute><GroupForm /></AdminRoute>} />
+        <Route path="/groups/edit/:id" element={<AdminRoute><GroupForm /></AdminRoute>} />
+
         {/* Admin-only routes */}
         <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
 
