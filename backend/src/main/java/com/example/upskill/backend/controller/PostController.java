@@ -51,9 +51,8 @@ public class PostController {
 
     @GetMapping
     public List<PostResponse> getAllPosts() {
-        return postRepository.findAllByOrderByCreatedAtDesc().stream()
-                .map(this::toResponse)
-                .collect(Collectors.toList());
+        List<Post> posts = postRepository.findByGroupIdIsNullOrderByCreatedAtDesc();
+        return posts.stream().map(this::toResponse).collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
@@ -114,7 +113,7 @@ public class PostController {
 
     @GetMapping("/user/{userId}")
     public List<PostResponse> getPostsByUser(@PathVariable String userId) {
-        return postRepository.findByUserIdOrderByCreatedAtDesc(userId).stream()
+        return postRepository.findByUserIdAndGroupIdIsNullOrderByCreatedAtDesc(userId).stream()
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
