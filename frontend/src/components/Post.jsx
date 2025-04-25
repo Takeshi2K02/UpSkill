@@ -2,6 +2,7 @@ import React, { useState, useContext, useRef } from "react";
 import { Image, Video } from "cloudinary-react";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
+import CommentSection from "./CommentSection";
 
 const Post = ({
   post,
@@ -469,35 +470,14 @@ const Post = ({
               )}
 
               {/* Add Comment */}
-              <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
-                <div className="flex items-center space-x-2">
-                  <img
-                    src={getProfilePicUrl(user.id)}
-                    alt="You"
-                    className="w-8 h-8 rounded-full object-cover"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Write a comment..."
-                    className="flex-1 p-2 text-sm border border-gray-200 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500"
-                    value={commentInputs[post.id] || ""}
-                    onChange={(e) => onCommentChange(post.id, e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        onAddComment(post.id);
-                      }
-                    }}
-                  />
-                  <button
-                    onClick={() => onAddComment(post.id)}
-                    disabled={!commentInputs[post.id]?.trim()}
-                    className="ml-2 px-3 py-1 bg-blue-500 text-white text-sm rounded-full hover:bg-blue-600 disabled:opacity-50"
-                  >
-                    Post
-                  </button>
-                </div>
-              </div>
+              <CommentSection
+                getProfilePicUrl={getProfilePicUrl}
+                onCommentChange={onCommentChange}
+                onAddComment={onAddComment}
+                postId={post.id}
+                commentInputs={commentInputs}
+                UserId={user.id}
+              />
             </>
           )}
         </>

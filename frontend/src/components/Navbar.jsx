@@ -86,7 +86,7 @@ export default function Navbar() {
           </span>
           <input
             type="text"
-            placeholder="Search skills or posts..."
+            placeholder="Search"
             className="w-full pl-10 pr-4 py-2 bg-white border border-gray-200 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-blue-400 placeholder-gray-400 transition"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
