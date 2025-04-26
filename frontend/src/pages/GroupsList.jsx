@@ -1,6 +1,9 @@
+// src/pages/GroupsList.jsx
 import React, { useEffect, useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Users, ChevronRight } from 'lucide-react';
+
+import CommonLayout from '../layouts/CommonLayout';
 
 export default function GroupsList() {
   const [groups, setGroups] = useState([]);
@@ -100,9 +103,11 @@ export default function GroupsList() {
   }, [loading, error, groups]);
 
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
-      <h1 className="text-3xl font-bold text-indigo-700">Community Groups</h1>
-      {content}
-    </div>
+    <CommonLayout>
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        <h1 className="text-3xl font-bold text-indigo-700">Community Groups</h1>
+        {content}
+      </div>
+    </CommonLayout>
   );
 }
