@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getLearningPlansByUser } from '../services/learningPlanService';
-import { getGroupsByUser, getGroupsByAdmin } from '../services/groupService';
+import { getGroupsByUser, getGroupsByAdmin, getAllGroups } from '../services/groupService';
 
 export default function RightPanel() {
   const role        = sessionStorage.getItem('role');
@@ -17,7 +17,7 @@ export default function RightPanel() {
       try {
         const data =
           role === 'ADMIN'
-            ? await getGroupsByAdmin(userId)
+            ? await getAllGroups()
             : await getGroupsByUser(userId);
         setGroupsList(data);
       } catch (e) {
@@ -70,7 +70,9 @@ export default function RightPanel() {
           <ul className="space-y-2 text-blue-700 text-sm font-medium">
             {groupsList.length > 0 ? (
               groupsList.map(g => (
-                <li key={g.id || g._id?.$oid}>{g.name}</li>
+                <li key={g.id || g._id?.$oid} className="truncate" title={g.name}>
+                  {g.name}
+                </li>
               ))
             ) : (
               <li className="text-gray-400 text-sm">No groups to display</li>
@@ -126,7 +128,9 @@ export default function RightPanel() {
             <ul className="space-y-2 text-blue-700 text-sm font-medium pb-2">
               {groupsList.length > 0 ? (
                 groupsList.map(g => (
-                  <li key={g.id || g._id?.$oid}>{g.name}</li>
+                  <li key={g.id || g._id?.$oid} className="truncate" title={g.name}>
+                    {g.name}
+                  </li>
                 ))
               ) : (
                 <li className="text-gray-400 text-sm">No groups to display</li>
