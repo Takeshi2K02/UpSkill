@@ -1,6 +1,8 @@
 import React, { useContext } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
 import { CloudinaryContext } from 'cloudinary-react';
+import { ToastContainer } from 'react-toastify'; // ✅ Add this
+import 'react-toastify/dist/ReactToastify.css'; // ✅ Add this
 import Login from './pages/Login';
 import PrivateRoute from './middleware/PrivateRoute';
 import AdminRoute from './middleware/AdminRoute';
@@ -34,7 +36,6 @@ function App() {
       ? `https://graph.facebook.com/${facebookId}/picture?width=480&height=480&access_token=${fbToken}`
       : null;
 
-  // Read Cloudinary cloud name from env
   const cloudName = import.meta.env.VITE_REACT_APP_CLOUDINARY_CLOUD_NAME;
 
   return (
@@ -65,6 +66,9 @@ function App() {
           {/* Unauthorized Page */}
           <Route path="/unauthorized" element={<Unauthorized />} />
         </Routes>
+
+        {/* ✅ Toast container added here */}
+        <ToastContainer position="top-center" autoClose={3000} />
       </div>
     </CloudinaryContext>
   );
