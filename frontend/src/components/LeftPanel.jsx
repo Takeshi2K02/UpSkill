@@ -3,9 +3,9 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { Home, User, Book, MessageCircle, Users, LogOut } from "lucide-react";
 
 export default function LeftPanel() {
-  const navigate    = useNavigate();
-  const facebookId  = sessionStorage.getItem("facebookId");
-  const role        = sessionStorage.getItem("role");
+  const navigate   = useNavigate();
+  const facebookId = sessionStorage.getItem("facebookId");
+  const role       = sessionStorage.getItem("role");
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -13,11 +13,17 @@ export default function LeftPanel() {
   };
 
   return (
-    <aside className="w-64 hidden md:block h-full sticky top-0 p-4">
+    <aside className="w-72 hidden md:block h-full sticky top-0 p-4">
       <div className="bg-white rounded-lg shadow p-4 pt-4 flex flex-col justify-between h-full">
         <nav className="space-y-4">
           {role === "ADMIN" ? (
             <>
+              <NavLink
+                to="/admin-dashboard"
+                className="flex items-center gap-3 p-2 rounded-md hover:bg-blue-50 transition"
+              >
+                <Home size={18} /> Home
+              </NavLink>
               <NavLink
                 to={`/profile/${facebookId}`}
                 className="flex items-center gap-3 p-2 rounded-md hover:bg-blue-50 transition"
@@ -75,5 +81,5 @@ export default function LeftPanel() {
         </button>
       </div>
     </aside>
-);
+  );
 }

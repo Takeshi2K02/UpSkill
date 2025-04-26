@@ -43,13 +43,12 @@ export default function RightPanel() {
     async function fetchCurrentPlans() {
       try {
         const allPlans = await getLearningPlansByUser(userId);
-        // Calculate progress
         const filtered = allPlans.filter(plan => {
-          const topics = plan.topics || [];
-          const total   = topics.reduce((sum,t) => sum + (t.weight||0), 0);
-          const done    = topics.filter(t => t.status==='completed')
-                                  .reduce((sum,t) => sum + (t.weight||0), 0);
-          const pct     = total ? Math.round(done/total*100) : 0;
+          const topics      = plan.topics || [];
+          const totalWeight = topics.reduce((s,t) => s + (t.weight||0),0);
+          const doneWeight  = topics.filter(t => t.status==='completed')
+                                    .reduce((s,t) => s + (t.weight||0),0);
+          const pct         = totalWeight ? Math.round(doneWeight/totalWeight*100) : 0;
           return plan.dueDate && pct < 100;
         });
         setCurrentPlans(filtered);
