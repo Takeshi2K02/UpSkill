@@ -12,7 +12,7 @@ import EditLearningPlan from './pages/EditLearningPlan';
 import AdminDashboard from './pages/AdminDashboard';
 import Unauthorized from './pages/Unauthorized';
 import Profile from './pages/Profile';
-import GroupsList from './components/GroupsList';
+import GroupsList from './pages/GroupsList';
 import GroupDetail from './pages/GroupDetail';
 import GroupForm from './pages/GroupForm';
 
