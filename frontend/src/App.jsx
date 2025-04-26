@@ -1,5 +1,6 @@
 import React, { useContext } from 'react';
 import { Routes, Route, useNavigate } from 'react-router-dom';
+import { CloudinaryContext } from 'cloudinary-react';
 import Login from './pages/Login';
 import PrivateRoute from './middleware/PrivateRoute';
 import AdminRoute from './middleware/AdminRoute';
@@ -15,7 +16,6 @@ import Profile from './pages/Profile';
 import GroupsList from './pages/GroupsList';
 import GroupDetail from './pages/GroupDetail';
 import GroupForm from './pages/GroupForm';
-
 
 function App() {
   const { user, logout } = useContext(AuthContext);
@@ -34,34 +34,39 @@ function App() {
       ? `https://graph.facebook.com/${facebookId}/picture?width=480&height=480&access_token=${fbToken}`
       : null;
 
+  // Read Cloudinary cloud name from env
+  const cloudName = import.meta.env.VITE_REACT_APP_CLOUDINARY_CLOUD_NAME;
+
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-800">
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        
-        {/* Private Routes for logged in users */}
-        <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
-        <Route path="/learning-plans" element={<PrivateRoute><LearningPlans /></PrivateRoute>} />
-        <Route path="/profile/:userId" element={<Profile />} />
-        <Route path="/learning-plans/create" element={<PrivateRoute><CreateLearningPlan /></PrivateRoute>} />
-        <Route path="/learning-plan/:id" element={<PrivateRoute><LearningPlanDetail /></PrivateRoute>} />
-        <Route path="/learning-plan/edit/:id" element={<PrivateRoute><EditLearningPlan /></PrivateRoute>} />
+    <CloudinaryContext cloudName={cloudName}>
+      <div className="min-h-screen bg-gray-100 text-gray-800">
+        <Routes>
+          <Route path="/login" element={<Login />} />
 
-        {/* Community Groups - all logged-in users */}
-        <Route path="/groups" element={<PrivateRoute><GroupsList /></PrivateRoute>} />
-        <Route path="/groups/:id" element={<PrivateRoute><GroupDetail /></PrivateRoute>} />
+          {/* Private Routes for logged in users */}
+          <Route path="/" element={<PrivateRoute><Home /></PrivateRoute>} />
+          <Route path="/learning-plans" element={<PrivateRoute><LearningPlans /></PrivateRoute>} />
+          <Route path="/profile/:userId" element={<Profile />} />
+          <Route path="/learning-plans/create" element={<PrivateRoute><CreateLearningPlan /></PrivateRoute>} />
+          <Route path="/learning-plan/:id" element={<PrivateRoute><LearningPlanDetail /></PrivateRoute>} />
+          <Route path="/learning-plan/edit/:id" element={<PrivateRoute><EditLearningPlan /></PrivateRoute>} />
 
-        {/* Community Groups - admin only */}
-        <Route path="/groups/create" element={<AdminRoute><GroupForm /></AdminRoute>} />
-        <Route path="/groups/edit/:id" element={<AdminRoute><GroupForm /></AdminRoute>} />
+          {/* Community Groups - all logged-in users */}
+          <Route path="/groups" element={<PrivateRoute><GroupsList /></PrivateRoute>} />
+          <Route path="/groups/:id" element={<PrivateRoute><GroupDetail /></PrivateRoute>} />
 
-        {/* Admin-only routes */}
-        <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+          {/* Community Groups - admin only */}
+          <Route path="/groups/create" element={<AdminRoute><GroupForm /></AdminRoute>} />
+          <Route path="/groups/edit/:id" element={<AdminRoute><GroupForm /></AdminRoute>} />
 
-        {/* Unauthorized Page */}
-        <Route path="/unauthorized" element={<Unauthorized />} />
-      </Routes>
-    </div>
+          {/* Admin-only routes */}
+          <Route path="/admin-dashboard" element={<AdminRoute><AdminDashboard /></AdminRoute>} />
+
+          {/* Unauthorized Page */}
+          <Route path="/unauthorized" element={<Unauthorized />} />
+        </Routes>
+      </div>
+    </CloudinaryContext>
   );
 }
 
