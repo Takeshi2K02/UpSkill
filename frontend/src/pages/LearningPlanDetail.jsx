@@ -24,13 +24,10 @@ export default function LearningPlanDetail() {
     fetchPlan();
   }, [id]);
 
-  // Progress calculation based on topic weights
   const calculateProgress = (plan) => {
     if (!plan || !plan.topics || plan.topics.length === 0) return 0;
-
     let totalWeight = 0;
     let completedWeight = 0;
-
     for (const topic of plan.topics) {
       const weight = topic.weight || 0;
       totalWeight += weight;
@@ -38,9 +35,7 @@ export default function LearningPlanDetail() {
         completedWeight += weight;
       }
     }
-
     if (totalWeight === 0) return 0;
-
     return Math.round((completedWeight / totalWeight) * 100);
   };
 
@@ -59,9 +54,7 @@ export default function LearningPlanDetail() {
 
             {/* Progress Bar */}
             <div className="mb-6">
-              <p className="text-sm text-gray-600">
-                Progress: {calculateProgress(plan)}%
-              </p>
+              <p className="text-sm text-gray-600">Progress: {calculateProgress(plan)}%</p>
               <div className="w-full h-2 bg-gray-200 rounded mt-2">
                 <div
                   className="h-full bg-blue-500 rounded"
@@ -73,12 +66,12 @@ export default function LearningPlanDetail() {
             <p className="text-gray-700 mb-4">{plan.description}</p>
 
             <h3 className="text-xl font-semibold text-gray-800 mb-3">Topics</h3>
-            <div className="space-y-4">
+            <div className="space-y-6">
               {plan.topics && plan.topics.length > 0 ? (
                 plan.topics.map((topic, idx) => (
-                  <div key={idx} className="bg-white rounded-xl shadow-md p-6 flex flex-col justify-between min-h-[300px] relative border border-gray-200">
-                    {/* Checkbox and Title */}
-                    <div className="flex items-start justify-between mb-4">
+                  <div key={idx} className="bg-white rounded-2xl shadow-lg p-6 flex flex-col gap-4 border border-gray-200">
+                    {/* Title and Checkbox */}
+                    <div className="flex items-center justify-between">
                       <h4 className="text-lg font-semibold text-gray-800">{topic.name}</h4>
                       <input
                         type="checkbox"
@@ -86,10 +79,9 @@ export default function LearningPlanDetail() {
                         onChange={async () => {
                           const newStatus = topic.status === 'completed' ? 'incomplete' : 'completed';
                           setPlan(prevPlan => {
-                            const updatedTopics = prevPlan.topics.map((t, i) => {
-                              if (i === idx) return { ...t, status: newStatus };
-                              return t;
-                            });
+                            const updatedTopics = prevPlan.topics.map((t, i) =>
+                              i === idx ? { ...t, status: newStatus } : t
+                            );
                             return { ...prevPlan, topics: updatedTopics };
                           });
                           try {
@@ -98,25 +90,52 @@ export default function LearningPlanDetail() {
                             console.error('Failed to update topic status:', error);
                           }
                         }}
-                        className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded mt-1"
+                        className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                       />
                     </div>
 
-                    {/* Markdown Content */}
-                    <div className="prose prose-blue max-w-none dark:prose-invert prose-headings:font-semibold prose-p:leading-relaxed prose-li:marker:text-blue-500 prose-a:text-blue-600 prose-blockquote:border-blue-400 mb-6">
-                      <ReactMarkdown>{topic.textContent}</ReactMarkdown>
+                    {/* Text Content Sub-Card */}
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h5 className="font-semibold text-gray-700 mb-2">Text Content</h5>
+                      <div className="prose prose-blue max-w-none">
+                        <ReactMarkdown>{topic.textContent}</ReactMarkdown>
+                      </div>
+                    </div>
+
+                    {/* YouTube Resources Sub-Card */}
+                    <div className="bg-gray-50 rounded-lg p-4">
+                      <h5 className="font-semibold text-gray-700 mb-2">YouTube Resources</h5>
+                      {topic.resources && topic.resources.length > 0 ? (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {topic.resources.map((res, idx2) => (
+                            res.type === 'youtube' ? (
+                              <div key={idx2} className="aspect-video">
+                                <iframe
+                                  src={`https://www.youtube.com/embed/${res.url.split('v=')[1]}`}
+                                  title="YouTube video"
+                                  className="w-full h-full rounded-md"
+                                  frameBorder="0"
+                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                  allowFullScreen
+                                />
+                              </div>
+                            ) : null
+                          ))}
+                        </div>
+                      ) : (
+                        <div className="text-gray-400 text-sm">No resources available.</div>
+                      )}
                     </div>
 
                     {/* Mark as Completed Button */}
-                    <div className="mt-auto flex justify-end">
+                    <div className="mt-4 flex justify-end">
                       <button
                         onClick={async () => {
                           const newStatus = topic.status === 'completed' ? 'incomplete' : 'completed';
                           setPlan(prevPlan => {
-                            const updatedTopics = prevPlan.topics.map((t, i) => {
-                              if (i === idx) return { ...t, status: newStatus };
-                              return t;
-                            });
+                            const updatedTopics = prevPlan.topics.map((t, i) =>
+                              i === idx ? { ...t, status: newStatus } : t
+                            );
                             return { ...prevPlan, topics: updatedTopics };
                           });
                           try {
@@ -126,7 +145,7 @@ export default function LearningPlanDetail() {
                           }
                         }}
                         disabled={topic.status === 'completed'}
-                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md disabled:bg-gray-400 transition focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
                       >
                         {topic.status === 'completed' ? 'Completed' : 'Mark as Completed'}
                       </button>
