@@ -16,7 +16,7 @@ export default function Home() {
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
   const fileInputRef = useRef(null);
-  const cloudName = import.meta.env.VITE_REACT_APP_CLOUDINARY_CLOUD_NAME;
+  const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
   const getProfilePicUrl = (userId, userName) => {
     if (userId === user?.id) {

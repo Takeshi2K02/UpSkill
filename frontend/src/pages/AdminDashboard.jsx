@@ -1,48 +1,77 @@
-import React from 'react';
+// src/pages/AdminDashboard.jsx
+import React, { useContext } from 'react';
+import { Link } from 'react-router-dom';
+import { PlusCircle, FileText, Users, Layers } from 'lucide-react';
+import { AuthContext } from '../context/AuthContext';
+import CommonLayout from '../layouts/CommonLayout';
 
 export default function AdminDashboard() {
-  const name = sessionStorage.getItem('name') || 'Admin';
+  const { user }   = useContext(AuthContext);
+  const facebookId = sessionStorage.getItem('facebookId');
+  const fbToken    = sessionStorage.getItem('facebookAccessToken');
+  const profilePicUrl =
+    facebookId && fbToken
+      ? `https://graph.facebook.com/${facebookId}/picture?width=48&height=48&access_token=${fbToken}`
+      : null;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sky-100 to-indigo-200 p-6">
-      <div className="max-w-6xl mx-auto space-y-8">
-
-        {/* Top Welcome Section */}
-        <div className="text-center">
-          <h1 className="text-5xl font-extrabold text-indigo-700 mb-2">Admin Dashboard</h1>
-          <p className="text-gray-600 text-lg">Hello, <span className="font-bold">{name}</span>! Manage the community efficiently and easily.</p>
-        </div>
-
-        {/* Action Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8">
-          {/* Card 1 */}
-          <div className="bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition">
-            <h2 className="text-2xl font-bold text-indigo-600 mb-4">Create New Group</h2>
-            <p className="text-gray-500 mb-6">Start a new community group for users to share their skills and knowledge.</p>
-            <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition">
-              ➕ Create Group
-            </button>
-          </div>
-
-          {/* Card 2 */}
-          <div className="bg-white p-8 rounded-2xl shadow-xl hover:shadow-2xl transition">
-            <h2 className="text-2xl font-bold text-green-600 mb-4">Manage Existing Groups</h2>
-            <p className="text-gray-500 mb-6">Edit, view, or delete existing community groups easily.</p>
-            <div className="space-y-3">
-              <button className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition">
-                📋 View Groups
-              </button>
-              <button className="w-full bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 rounded-lg transition">
-                ✏️ Edit Groups
-              </button>
-              <button className="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition">
-                🗑️ Delete Groups
-              </button>
-            </div>
+    <CommonLayout>
+      {/* Hero Section */}
+      <section className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl p-6 flex items-center space-x-6 shadow-lg">
+          <Users className="h-12 w-12 text-indigo-600" />
+          <div>
+            <h3 className="text-xl font-bold text-indigo-700">120 Members</h3>
+            <p className="text-gray-500">Active in community</p>
           </div>
         </div>
+        <div className="bg-white rounded-2xl p-6 flex items-center space-x-6 shadow-lg">
+          <Layers className="h-12 w-12 text-green-600" />
+          <div>
+            <h3 className="text-xl font-bold text-green-700">4 Groups</h3>
+            <p className="text-gray-500">Currently managed</p>
+          </div>
+        </div>
+      </section>
 
-      </div>
-    </div>
+      {/* Main Content */}
+      <main className="max-w-7xl mx-auto px-6 py-8 grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Create Group Card */}
+        <section className="bg-white rounded-2xl p-8 flex flex-col shadow-lg">
+          <div className="flex items-center mb-6">
+            <PlusCircle className="h-8 w-8 text-indigo-600 mr-3" />
+            <h2 className="text-2xl font-semibold text-indigo-700">Create New Group</h2>
+          </div>
+          <p className="text-gray-600 mb-8 flex-grow">
+            Start a new community group for users to share their skills and knowledge.
+          </p>
+          <Link
+            to="/groups/create"
+            className="inline-flex items-center justify-center px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-400"
+          >
+            <PlusCircle className="h-5 w-5 mr-2" />
+            Create Group
+          </Link>
+        </section>
+
+        {/* Manage Groups Card */}
+        <section className="bg-white rounded-2xl p-8 flex flex-col shadow-lg">
+          <div className="flex items-center mb-6">
+            <FileText className="h-8 w-8 text-green-600 mr-3" />
+            <h2 className="text-2xl font-semibold text-green-700">Manage Groups</h2>
+          </div>
+          <p className="text-gray-600 mb-8 flex-grow">
+            View and manage your community groups.
+          </p>
+          <Link
+            to="/groups"
+            className="inline-flex items-center justify-center px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-green-400"
+          >
+            <FileText className="h-5 w-5 mr-2" />
+            View All
+          </Link>
+        </section>
+      </main>
+    </CommonLayout>
   );
 }
