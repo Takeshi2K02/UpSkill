@@ -219,17 +219,29 @@ public Post unlikePost(@PathVariable String id, @RequestBody Map<String, String>
 public Post addComment(@PathVariable String id, @RequestBody Map<String, String> payload) {
     String userId = payload.get("userId");
     String content = payload.get("content");
-    
+
+    // Validate input
+    if (userId == null || userId.isEmpty()) {
+        throw new IllegalArgumentException("User ID is required");
+    }
+    if (content == null || content.isEmpty()) {
+        throw new IllegalArgumentException("Content is required");
+    }
+
+    // Find the post by ID
     Post post = postRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
-    
+
     // Ensure comments list is not null
     if (post.getComments() == null) {
         post.setComments(new ArrayList<>());
     }
-    
+
+    // Create and add the comment
     Comment comment = new Comment(userId, content);
     post.getComments().add(comment);
+
+    // Save the updated post
     return postRepository.save(post);
 }
 
@@ -276,6 +288,46 @@ public List<PostResponse> getPostsByUser(@PathVariable String userId) {
     }).collect(Collectors.toList());
 }
 
+@DeleteMapping("/{postId}/comments/{commentId}")
+public Post deleteComment(
+        @PathVariable String postId,
+        @PathVariable String commentId,
+        @RequestParam String userId) {
 
+    // Find the post by ID
+    Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new RuntimeException("Post not found: " + postId));
+
+    // Remove the comment if the user is authorized
+    boolean commentRemoved = post.getComments().removeIf(comment ->
+            comment.getId().equals(commentId) &&
+            (comment.getUserId().equals(userId) || post.getUserId().equals(userId))
+    );
+
+    if (!commentRemoved) {
+        throw new RuntimeException("Comment not found or user not authorized to delete");
+    }
+
+    // Save the updated post
+    return postRepository.save(post);
+}
+
+    @PutMapping("/{postId}/comments/{commentId}")
+    public Post editComment(
+        @PathVariable String postId,
+        @PathVariable String commentId,
+        @RequestParam String userId,
+        @RequestBody String newContent) {
+    Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new RuntimeException("Post not found: " + postId));
+
+    post.getComments().forEach(comment -> {
+        if (comment.getId().equals(commentId) && comment.getUserId().equals(userId)) {
+            comment.setContent(newContent);
+        }
+    });
+
+    return postRepository.save(post);
+}
     
 }
