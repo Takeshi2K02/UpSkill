@@ -196,11 +196,20 @@ const Post = ({
   };
 
   const toggleCommentMenu = (commentId) => {
-    setShowCommentOptions((prev) => ({
-      ...prev, // Preserve the state for other comments
-      [commentId]: !prev[commentId], // Toggle only the clicked comment's menu
-    }));
+    setShowCommentOptions((prev) => {
+      const updated = { ...prev };
+      if (updated[commentId]) {
+        // If the menu is already open, close it
+        delete updated[commentId];
+      } else {
+        // Open the clicked comment's menu
+        updated[commentId] = true;
+      }
+      console.log("Updated showCommentOptions:", updated); // Debugging log
+      return updated;
+    });
   };
+  
   
 
   return (
