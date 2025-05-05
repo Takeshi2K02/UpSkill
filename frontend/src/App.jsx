@@ -19,6 +19,7 @@ import GroupsList from './pages/GroupsList';
 import GroupDetail from './pages/GroupDetail';
 import GroupForm from './pages/GroupForm';
 import ComingSoon from './pages/ComingSoon';
+import SignUp from './pages/SignUp';
 
 function App() {
   const { user, logout } = useContext(AuthContext);
@@ -69,6 +70,9 @@ function App() {
 
           {/* Chatbot Route */}
           <Route path="/chatbot" element={<PrivateRoute><ComingSoon /></PrivateRoute>} /> {/* ✨ Newly added */}
+
+          <Route path="/signup" element={<SignUp />} />
+
         </Routes>
 
         {/* ✅ Toast container added here */}
