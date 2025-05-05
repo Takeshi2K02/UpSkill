@@ -1,4 +1,4 @@
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import { Image, Video } from "cloudinary-react";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
@@ -25,10 +25,11 @@ const Post = ({
   const [previews, setPreviews] = useState([]);
   const [removedAttachments, setRemovedAttachments] = useState([]);
   const fileInputRef = useRef(null);
-
+  const menuRef = useRef(null);
   const [editingCommentId, setEditingCommentId] = useState(null); // ID of the comment being edited
   const [editedCommentText, setEditedCommentText] = useState(""); // Text of the comment being edited
-  const [showCommentOptions, setShowCommentOptions] = useState({}); // Starts with no menu open
+  const [openCommentId, setOpenCommentId] = useState(null);
+
 
 
   const renderAttachment = (url) => {
@@ -162,6 +163,24 @@ const Post = ({
     setRemovedAttachments([]);
   };
 
+  const toggleCommentMenu = (commentId) => {
+    setOpenCommentId((prevId) => (prevId === commentId ? null : commentId));
+  };
+
+  const handleClickOutside = (event) => {
+    if (!event.target.closest(".relative")) {
+      setOpenCommentId(null); // Close all menus
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+
   const handleEditComment = (commentId, currentContent) => {
     setEditingCommentId(commentId);
     setEditedCommentText(currentContent);
@@ -195,22 +214,9 @@ const Post = ({
     }
   };
 
-  const toggleCommentMenu = (commentId) => {
-    setShowCommentOptions((prev) => {
-      const updated = { ...prev };
-      if (updated[commentId]) {
-        // If the menu is already open, close it
-        delete updated[commentId];
-      } else {
-        // Open the clicked comment's menu
-        updated[commentId] = true;
-      }
-      console.log("Updated showCommentOptions:", updated); // Debugging log
-      return updated;
-    });
-  };
+ 
   
-  
+
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
@@ -459,7 +465,7 @@ const Post = ({
                       strokeLinejoin="round"
                       strokeWidth={2}
                       d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                    />
+                  />
                   </svg>
                   <span>Like</span>
                 </button>
@@ -502,8 +508,8 @@ const Post = ({
              {/* Comments List */}
               {post.commentsList.length > 0 && (
                 <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
-                  {post.commentsList.map((comment, idx) => (
-                    <div key={idx} className="flex items-start space-x-2 mb-3 relative">
+                  {post.commentsList.map((comment) => (
+                    <div key={comment._id} className="flex items-start space-x-2 mb-3 relative">
                       {/* Avatar */}
                       <img
                         src={comment.avatar}
@@ -513,57 +519,60 @@ const Post = ({
 
                       {/* Comment Content */}
                       <div className="bg-white p-2 rounded-lg flex-1">
-                        {editingCommentId === comment._id ? (
-                          <div>
-                            <textarea
-                              className="w-full p-2 border border-gray-300 rounded-md"
-                              value={editedCommentText}
-                              onChange={(e) => setEditedCommentText(e.target.value)}
-                            />
-                            <div className="mt-2 flex space-x-2">
-                              <button
-                                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                                onClick={() => handleSaveComment(comment._id)}
-                              >
-                                Save
-                              </button>
-                              <button
-                                className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
-                                onClick={() => setEditingCommentId(null)}
-                              >
-                                Cancel
-                              </button>
-                            </div>
+                      {editingCommentId === comment._id ? (
+                        <div>
+                          <textarea
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                            value={editedCommentText}
+                            onChange={(e) => setEditedCommentText(e.target.value)}
+                          />
+                          <div className="mt-2 flex space-x-2">
+                            <button
+                              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                              onClick={() => handleSaveComment(comment._id)}
+                            >
+                              Save
+                            </button>
+                            <button
+                              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                              onClick={() => setEditingCommentId(null)}
+                            >
+                              Cancel
+                            </button>
                           </div>
-                        ) : (
-                          <>
-                            <p className="font-medium text-sm">{comment.username}</p>
-                            <p className="text-gray-800 text-sm">{comment.content}</p>
-                            <p className="text-gray-500 text-xs mt-1">{comment.timestamp}</p>
-                          </>
-                        )}
-                      </div>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="font-medium text-sm">{comment.username}</p>
+                          <p className="text-gray-800 text-sm">{comment.content}</p>
+                          <p className="text-gray-500 text-xs mt-1">{comment.timestamp}</p>
+                        </>
+                      )}
+                    </div>
+
 
                       {/* Three-Dot Menu for Comments */}
                       {user?.id === comment.userId && ( // Only show the menu if the user owns the comment
-                        <div className="relative">
+                        <div className="relative" ref={openCommentId==comment._id ? menuRef : null}>
                           <button
                             className="text-gray-500 hover:text-gray-700"
-                            onClick={() => toggleCommentMenu(comment._id)} // Use the updated toggle logic
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent event bubbling
+                              toggleCommentMenu(comment._id);
+                            }} // Use the updated toggle logic
                           >
                             &#x22EE; {/* Three-dot menu */}
                           </button>
-                          {showCommentOptions[comment._id] && ( // Check if the menu for this comment is open
+
+                          {openCommentId === comment._id && ( // Check if the menu for this comment is open
                             <div className="absolute right-0 bg-white border rounded shadow-md z-10">
                               <button
                                 className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
                                 onClick={() => {
+                                  console.log("Edit clicked");
                                   setEditingCommentId(comment._id);
                                   setEditedCommentText(comment.content);
-                                  setShowCommentOptions((prev) => ({
-                                    ...prev,
-                                    [comment._id]: false, // Close the menu after clicking "Edit"
-                                  }));
+                                  setOpenCommentId(null); // Close the menu after selecting edit
                                 }}
                               >
                                 Edit
@@ -571,11 +580,9 @@ const Post = ({
                               <button
                                 className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
                                 onClick={() => {
+                                  console.log("Delete clicked");
                                   handleDeleteComment(comment._id);
-                                  setShowCommentOptions((prev) => ({
-                                    ...prev,
-                                    [comment._id]: false, // Close the menu after clicking "Delete"
-                                  }));
+                                  setOpenCommentId(null); // Close the menu after deleting
                                 }}
                               >
                                 Delete
