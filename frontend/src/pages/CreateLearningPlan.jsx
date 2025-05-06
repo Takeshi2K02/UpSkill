@@ -7,6 +7,8 @@ import { generatePlanTitlePrompt, generateTopicSuggestionsPrompt } from '../ai/p
 import { generateGeminiContent } from '../ai/geminiService';
 import { normalizeWeights } from '../utils/weightUtils';
 import { createLearningPlan } from '../services/learningPlanService';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function CreateLearningPlan() {
   const [selectedTitle, setSelectedTitle] = useState('');
@@ -167,10 +169,10 @@ export default function CreateLearningPlan() {
   const handleSaveLearningPlan = async () => {
     const userId = sessionStorage.getItem('facebookId');
     if (!userId) {
-      alert('User not logged in.');
+      toast.error('User not logged in.');
       return;
     }
-  
+
     const learningPlan = {
       userId,
       title: selectedTitle,
@@ -180,18 +182,27 @@ export default function CreateLearningPlan() {
         status: 'incomplete',
       })),
     };
-  
+
     try {
       setLoading(true);
       await createLearningPlan(learningPlan);
-      alert('Learning plan saved successfully!');
+      toast.success('Learning plan saved successfully!');
+      resetForm();
     } catch (error) {
       console.error(error);
-      alert('Error while saving learning plan.');
+      toast.error('Error while saving learning plan.');
     } finally {
       setLoading(false);
     }
-  };  
+  };
+
+  const resetForm = () => {
+    setSelectedTitle('');
+    setDescription('');
+    setTopics([]);
+    setUsedTopicSuggestions([]);
+    setCachedAISuggestions([]);
+  };
 
   return (
     <CommonLayout>
@@ -219,6 +230,7 @@ export default function CreateLearningPlan() {
           loading={loading}
           canSave={canSave}
         />
+        <ToastContainer position="top-center" autoClose={3000} />
       </div>
     </CommonLayout>
   );
