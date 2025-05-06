@@ -101,15 +101,7 @@ public class PostController {
         return postRepository.save(post);
     }
 
-    @PostMapping("/{id}/comments")
-    public Post addComment(@PathVariable String id, @RequestBody Map<String,String> body) {
-        String userId = body.get("userId"), content = body.get("content");
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Post not found: " + id));
-        Comment c = new Comment(userId, content);
-        post.getComments().add(c);
-        return postRepository.save(post);
-    }
+    // Removed duplicate addComment method to resolve compilation error.
 
 
 @PostMapping("/{id}/comments")
@@ -252,7 +244,7 @@ public Post deleteComment(
     return postRepository.save(post);
 }
     
-}
+
 
     private void handleAttachments(Post post, MultipartFile[] files) throws IOException {
         if (files != null && files.length > 0) {
