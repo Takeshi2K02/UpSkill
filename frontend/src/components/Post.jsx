@@ -4,6 +4,7 @@ import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import CommentSection from "./CommentSection";
 import PostActionbar from "./PostActionbar";
+import CommentList from "./CommentList";
 
 const Post = ({
   post,
@@ -393,33 +394,15 @@ const Post = ({
                 UserId={user.id}
                 getProfilePicUrl={getProfilePicUrl}
              />
-
               {/* Comments List */}
-              {post.commentsList.length > 0 && (
-                <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
-                  {post.commentsList.map((comment, idx) => (
-                    <div key={idx} className="flex items-start space-x-2 mb-3">
-                      <img
-                        src={comment.avatar}
-                        alt={comment.username}
-                        className="w-8 h-8 rounded-full object-cover mt-1"
-                      />
-                      <div className="bg-white p-2 rounded-lg flex-1">
-                        <p className="font-medium text-sm">
-                          {comment.username}
-                        </p>
-                        <p className="text-gray-800 text-sm">
-                          {comment.content}
-                        </p>
-                        <p className="text-gray-500 text-xs mt-1">
-                          {comment.timestamp}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
+              <CommentList
+                post={post}
+                getProfilePicUrl={getProfilePicUrl}
+                UserId={user.id}
+                onCommentChange={onCommentChange}
+                onAddComment={onAddComment}
+                commentInputs={commentInputs}
+                postId={post.id}/>
               {/* Add Comment */}
               <CommentSection
                 getProfilePicUrl={getProfilePicUrl}
@@ -427,8 +410,7 @@ const Post = ({
                 onAddComment={onAddComment}
                 postId={post.id}
                 commentInputs={commentInputs}
-                UserId={user.id}
-              />
+                UserId={user.id}/>
             </>
           )}
         </>
@@ -436,5 +418,4 @@ const Post = ({
     </div>
   );
 };
-
 export default Post;
