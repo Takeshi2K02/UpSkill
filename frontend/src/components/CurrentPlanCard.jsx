@@ -66,18 +66,31 @@ export default function CurrentPlanCard({ plan }) {
 
   const calculateProgress = (plan) => {
     if (!plan || !plan.topics || plan.topics.length === 0) return 0;
-    let totalWeight = 0;
-    let completedWeight = 0;
+  
+    let total = 0;
+    let done = 0;
+  
     for (const topic of plan.topics) {
-      const weight = topic.weight || 0;
-      totalWeight += weight;
-      if (topic.status === 'completed') {
-        completedWeight += weight;
+      total += topic.weight || 0;
+  
+      if (topic.textCompleted && topic.textWeight) {
+        done += topic.textWeight;
+      }
+  
+      if (Array.isArray(topic.resources) && Array.isArray(topic.resourceCompletion)) {
+        for (let i = 0; i < topic.resources.length; i++) {
+          const res = topic.resources[i];
+          const completed = topic.resourceCompletion[i];
+          if (res.weight && completed) {
+            done += res.weight;
+          }
+        }
       }
     }
-    if (totalWeight === 0) return 0;
-    return Math.round((completedWeight / totalWeight) * 100);
-  };
+  
+    if (total === 0) return 0;
+    return Math.round((done / total) * 100);
+  };  
 
   const progress = calculateProgress(plan);
 
