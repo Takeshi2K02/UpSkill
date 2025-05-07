@@ -13,6 +13,12 @@ export default function LearningPlanDetail() {
     const fetchPlan = async () => {
       try {
         const data = await getLearningPlanById(id);
+
+        // Ensure _id is available for update calls
+        if (!data._id && data.id) {
+          data._id = data.id;
+        }
+
         setPlan(data);
       } catch (error) {
         console.error('Failed to load plan:', error);
@@ -99,24 +105,9 @@ export default function LearningPlanDetail() {
                   {/* Title and Checkbox */}
                   <div className="flex items-center justify-between">
                     <h4 className="text-lg font-semibold text-gray-800">{topic.name}</h4>
-                    <input
-                      type="checkbox"
-                      checked={topic.status === 'completed'}
-                      onChange={async () => {
-                        const newStatus = topic.status === 'completed' ? 'incomplete' : 'completed';
-                        const updatedTopics = plan.topics.map((t, i) =>
-                          i === idx ? { ...t, status: newStatus } : t
-                        );
-                        const updatedPlan = { ...plan, topics: updatedTopics };
-                        setPlan(updatedPlan);
-                        try {
-                          await updateTopicStatus(id, idx, newStatus);
-                        } catch (error) {
-                          console.error('Failed to update topic status:', error);
-                        }
-                      }}
-                      className="h-5 w-5 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                    />
+                    <span className={`text-sm px-2 py-1 rounded-full font-medium ${topic.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                      {topic.status === 'completed' ? 'Completed' : 'In Progress'}
+                    </span>
                   </div>
 
                   {/* Text Content */}
