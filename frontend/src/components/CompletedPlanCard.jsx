@@ -1,16 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { FiMoreVertical } from 'react-icons/fi';
 import { deleteLearningPlan } from '../services/learningPlanService';
-import ConfirmationModal from './ConfirmationModal';
 
 export default function CompletedPlanCard({ plan }) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
-  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [confirmAction, setConfirmAction] = useState(() => () => {});
-  const [confirmTitle, setConfirmTitle] = useState('');
-  const [confirmDescription, setConfirmDescription] = useState('');
-  const [confirmButtonText, setConfirmButtonText] = useState('Confirm');
 
   const optionsRef = useRef(null);
 
@@ -22,22 +16,18 @@ export default function CompletedPlanCard({ plan }) {
     alert('Edit Learning Plan (to be implemented)');
   };
 
-  const handleDelete = () => {
-    setIsOptionsOpen(false);
-    setConfirmTitle('Delete Learning Plan?');
-    setConfirmDescription('Are you sure you want to delete this learning plan? This action cannot be undone.');
-    setConfirmButtonText('Delete');
-    setConfirmAction(() => async () => {
-      try {
-        await deleteLearningPlan(plan._id?.$oid || plan.id);
-        window.location.reload(); // simple reload
-      } catch (error) {
-        console.error('Failed to delete learning plan:', error);
-        alert('Failed to delete learning plan.');
-      }
-    });
-    setConfirmModalOpen(true);
-  };    
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this learning plan?')) return;
+  
+    try {
+      await deleteLearningPlan(plan._id?.$oid || plan.id);
+      alert('Learning plan deleted successfully!');
+      window.location.reload(); // simple full reload to update list
+    } catch (error) {
+      console.error('Failed to delete learning plan:', error);
+      alert('Failed to delete learning plan.');
+    }
+  };  
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -83,6 +73,15 @@ export default function CompletedPlanCard({ plan }) {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
+                  handleEdit();
+                }}
+                className="w-full text-left text-gray-700 hover:bg-gray-100 px-4 py-2 text-sm"
+              >
+                Edit
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
                   handleDelete();
                 }}
                 className="w-full text-left text-red-600 hover:bg-gray-100 hover:text-red-700 px-4 py-2 text-sm"
@@ -100,17 +99,6 @@ export default function CompletedPlanCard({ plan }) {
           {plan.description || 'No description available.'}
         </div>
       )}
-      <ConfirmationModal
-        isOpen={confirmModalOpen}
-        title={confirmTitle}
-        description={confirmDescription}
-        confirmText={confirmButtonText}
-        onCancel={() => setConfirmModalOpen(false)}
-        onConfirm={() => {
-          setConfirmModalOpen(false);
-          confirmAction();
-        }}
-      />
     </div>
   );
 }

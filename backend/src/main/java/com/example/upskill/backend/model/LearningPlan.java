@@ -19,8 +19,6 @@ public class LearningPlan {
     private Instant createdAt;
     private Instant updatedAt;
     private Instant dueDate;
-    private double progress;
-
 
     public LearningPlan() {}
 
@@ -58,8 +56,4 @@ public class LearningPlan {
 
     public Instant getDueDate() { return dueDate; }
     public void setDueDate(Instant dueDate) { this.dueDate = dueDate; }
-
-    public double getProgress() { return progress; }
-    public void setProgress(double progress) { this.progress = progress; }
-
 }

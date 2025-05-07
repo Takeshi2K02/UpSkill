@@ -144,9 +144,7 @@ export default function RightPanel() {
           <h3 className="text-sm font-semibold text-gray-700 mb-3">Suggestions</h3>
           <div className="flex-1 overflow-hidden hover:overflow-y-auto scrollbar-hide">
             <ul className="space-y-3 text-sm pb-2">
-            {users
-              .filter(u => u.id !== userId) // <- Exclude the current logged-in user
-              .map(u => {
+              {users.map(u => {
                 const pic = `https://graph.facebook.com/${u.id}/picture?width=48&height=48&access_token=${accessToken}`;
                 return (
                   <li key={u.id} className="flex items-center gap-3 text-gray-800">

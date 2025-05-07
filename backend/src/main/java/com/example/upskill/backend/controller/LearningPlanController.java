@@ -1,7 +1,6 @@
 package com.example.upskill.backend.controller;
 
 import com.example.upskill.backend.model.LearningPlan;
-import com.example.upskill.backend.model.Topic;
 import com.example.upskill.backend.repository.LearningPlanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -77,46 +76,14 @@ public class LearningPlanController {
         LearningPlan existingPlan = repository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Learning Plan not found with id: " + id));
 
-        // Step 1: Auto-update topic statuses
-        for (Topic topic : updatedPlan.getTopics()) {
-            boolean textDone = topic.isTextCompleted();
-            boolean allVideosDone = topic.getResources() == null || topic.getResources().isEmpty()
-                    || (topic.getResourceCompletion() != null
-                        && topic.getResourceCompletion().stream().allMatch(Boolean::booleanValue));
-
-            if (textDone && allVideosDone) {
-                topic.setStatus("completed");
-            } else {
-                topic.setStatus("incomplete");
-            }
-        }
-
-        // Step 2: Recalculate progress
-        double progress = 0.0;
-        for (Topic topic : updatedPlan.getTopics()) {
-            if (topic.isTextCompleted()) {
-                progress += topic.getTextWeight();
-            }
-            if (topic.getResources() != null && topic.getResourceCompletion() != null) {
-                for (int i = 0; i < topic.getResources().size(); i++) {
-                    if (i < topic.getResourceCompletion().size() && topic.getResourceCompletion().get(i)) {
-                        progress += topic.getResources().get(i).getWeight();
-                    }
-                }
-            }
-        }
-
         existingPlan.setTitle(updatedPlan.getTitle());
         existingPlan.setDescription(updatedPlan.getDescription());
         existingPlan.setTopics(updatedPlan.getTopics());
         existingPlan.setDueDate(updatedPlan.getDueDate());
-        existingPlan.setProgress(progress);
         existingPlan.setUpdatedAt(Instant.now());
 
         return repository.save(existingPlan);
     }
-
-
 
     @DeleteMapping("/{id}")
     public void deleteLearningPlan(@PathVariable String id) {
