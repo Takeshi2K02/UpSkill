@@ -5,7 +5,6 @@ import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import CommentSection from "./CommentSection";
 import PostActionbar from "./PostActionbar";
-import CommentList from "./CommentList";
 
 const Post = ({
   post,
