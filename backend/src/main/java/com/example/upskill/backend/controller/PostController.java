@@ -101,6 +101,9 @@ public class PostController {
         return postRepository.save(post);
     }
 
+    // Removed duplicate addComment method to resolve compilation error.
+
+
 @PostMapping("/{id}/comments")
 public Post addComment(@PathVariable String id, @RequestBody Map<String, String> payload) {
     String userId = payload.get("userId");

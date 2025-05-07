@@ -6,14 +6,16 @@ public class Resource {
     private String title;
     private String thumbnail;
     private String description;
+    private double weight; // new field
 
     public Resource() {}
 
-    public Resource(String url, String title, String thumbnail, String description) {
+    public Resource(String url, String title, String thumbnail, String description, double weight) {
         this.url = url;
         this.title = title;
         this.thumbnail = thumbnail;
         this.description = description;
+        this.weight = weight;
     }
 
     public String getUrl() { return url; }
@@ -27,4 +29,7 @@ public class Resource {
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
+
+    public double getWeight() { return weight; }
+    public void setWeight(double weight) { this.weight = weight; }
 }
