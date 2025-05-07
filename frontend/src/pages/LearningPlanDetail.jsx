@@ -7,7 +7,8 @@ import confetti from 'canvas-confetti';
 import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github.css';
-
+import { CaretDown, CaretUp } from 'phosphor-react';
+import eventBus from '../utils/eventBus'
 
 export default function LearningPlanDetail() {
   const celebrate = () => {
@@ -197,7 +198,7 @@ export default function LearningPlanDetail() {
                           {topic.status === 'completed' ? 'Completed' : 'In Progress'}
                         </span>
                         <button className="text-blue-600 text-xl focus:outline-none">
-                          {isExpanded ? '▲' : '▼'}
+                        {isExpanded ? <CaretUp size={20} weight="bold" /> : <CaretDown size={20} weight="bold" />}
                         </button>
                       </div>
                     </div>
@@ -213,7 +214,8 @@ export default function LearningPlanDetail() {
                             onClick={() => toggleTextSection(idx)}
                           >
                             <div className="text-sm font-semibold text-blue-700 flex items-center gap-1">
-                              {expandedTextSections.includes(idx) ? '▼' : '▶'} Module Content
+                            {expandedTextSections.includes(idx) ? <CaretUp size={16} weight="bold" /> : <CaretDown size={16} weight="bold" />}
+                            <span>Module Content</span>
                             </div>
 
                             <label
@@ -238,6 +240,7 @@ export default function LearningPlanDetail() {
                                   setPlan(JSON.parse(JSON.stringify(updatedPlan)));
                                   try {
                                     await updateLearningPlan(plan._id, updatedPlan);
+                                    eventBus.emit('planUpdated');
                                   } catch (error) {
                                     console.error('Failed to update text progress:', error);
                                   }
@@ -271,7 +274,8 @@ export default function LearningPlanDetail() {
                             onClick={() => toggleResourceSection(idx)}
                           >
                             <div className="text-sm font-semibold text-blue-700 flex items-center gap-1">
-                              {expandedResourceSections.includes(idx) ? '▼' : '▶'} Online Resources
+                            {expandedResourceSections.includes(idx) ? <CaretUp size={16} weight="bold" /> : <CaretDown size={16} weight="bold" />}
+                            <span>Online Resources</span>
                             </div>
 
                             {topic.resources?.length > 0 && (
@@ -302,6 +306,7 @@ export default function LearningPlanDetail() {
                                     setPlan(JSON.parse(JSON.stringify(updatedPlan)));
                                     try {
                                       await updateLearningPlan(plan._id, updatedPlan);
+                                      eventBus.emit('planUpdated');
                                     } catch (error) {
                                       console.error('Failed to update bulk video progress:', error);
                                     }
