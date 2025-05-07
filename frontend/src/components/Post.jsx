@@ -1,15 +1,17 @@
-import React, { useState, useContext, useRef } from "react";
+
+import React, { useState, useContext, useRef, useEffect } from "react";
 import { Image, Video } from "cloudinary-react";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import CommentSection from "./CommentSection";
 import PostActionbar from "./PostActionbar";
-import CommentList from "./CommentList";
 
 const Post = ({
   post,
   onLike,
   onCommentChange,
+  onUpdateComment,
+  onDeleteComment,
   onAddComment,
   commentInputs,
   cloudName,
@@ -26,6 +28,11 @@ const Post = ({
   const [previews, setPreviews] = useState([]);
   const [removedAttachments, setRemovedAttachments] = useState([]);
   const fileInputRef = useRef(null);
+  const menuRef = useRef(null);
+  const [editingCommentId, setEditingCommentId] = useState(null); // ID of the comment being edited
+  const [editedCommentText, setEditedCommentText] = useState(""); // Text of the comment being edited
+  const [openCommentId, setOpenCommentId] = useState(null);
+  
 
   const renderAttachment = (url) => {
     const isVideo =
@@ -156,6 +163,55 @@ const Post = ({
     setFiles([]);
     setPreviews([]);
     setRemovedAttachments([]);
+  };
+  const toggleCommentMenu = (commentId) => {
+    setOpenCommentId((prevId) => (prevId === commentId ? null : commentId));
+  };
+
+  const handleClickOutside = (event) => {
+    if (!event.target.closest(".relative")) {
+      setOpenCommentId(null); // Close all menus
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleEditComment = (commentId, currentContent) => {
+    setEditingCommentId(commentId);
+    setEditedCommentText(currentContent);
+  };
+
+  const handleSaveComment = async (commentId) => {
+    try {
+      await onUpdateComment(post.id, commentId, editedCommentText); // Call the backend API
+      const updatedComments = post.commentsList.map((comment) =>
+        comment._id === commentId ? { ...comment, content: editedCommentText } : comment
+      );
+      post.commentsList = updatedComments; // Update the comments list
+      setEditingCommentId(null);
+      setEditedCommentText("");
+    } catch (error) {
+      console.error("Failed to update comment:", error);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (window.confirm("Are you sure you want to delete this comment?")) {
+      try {
+        await onDeleteComment(post.id, commentId); // Call the backend API
+        const updatedComments = post.commentsList.filter(
+          (comment) => comment._id !== commentId
+        );
+        post.commentsList = updatedComments; // Update the comments list
+      } catch (error) {
+        console.error("Failed to delete comment:", error);
+      }
+    }
   };
 
   return (
@@ -395,14 +451,90 @@ const Post = ({
                 getProfilePicUrl={getProfilePicUrl}
              />
               {/* Comments List */}
-              <CommentList
-                post={post}
-                getProfilePicUrl={getProfilePicUrl}
-                UserId={user.id}
-                onCommentChange={onCommentChange}
-                onAddComment={onAddComment}
-                commentInputs={commentInputs}
-                postId={post.id}/>
+              {post.commentsList.length > 0 && (
+                <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
+                 {post.commentsList.map((comment) => (
+                    <div key={comment._id} className="flex items-start space-x-2 mb-3 relative">
+                    <img
+                      src={comment.avatar}
+                      alt={comment.username}
+                      className="w-8 h-8 rounded-full object-cover mt-1"
+                    />
+
+                    {/* Comment Content */}
+                    <div className="bg-white p-2 rounded-lg flex-1">
+                    {editingCommentId === comment._id ? (
+                        <div>
+                          <textarea
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                            value={editedCommentText}
+                            onChange={(e) => setEditedCommentText(e.target.value)}
+                          />
+                          <div className="mt-2 flex space-x-2">
+                            <button
+                              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                              onClick={() => handleSaveComment(comment._id)}
+                            >
+                              Save
+                            </button>
+                            <button
+                              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                              onClick={() => setEditingCommentId(null)}
+                            >
+                              Cancel
+                            </button>
+                            </div>
+                            </div>
+                      ) : (
+                        <>
+                          <p className="font-medium text-sm">{comment.username}</p>
+                          <p className="text-gray-800 text-sm">{comment.content}</p>
+                          <p className="text-gray-500 text-xs mt-1">{comment.timestamp}</p>
+                        </>
+                      )}
+                    </div>
+                      {/* Three-Dot Menu for Comments */}
+                      {user?.id === comment.userId && ( // Only show the menu if the user owns the comment
+                        <div className="relative" ref={openCommentId==comment._id ? menuRef : null}>
+                          <button
+                            className="text-gray-500 hover:text-gray-700"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent event bubbling
+                              toggleCommentMenu(comment._id);
+                            }} // Use the updated toggle logic
+                          >
+                            &#x22EE; {/* Three-dot menu */}
+                          </button>
+                          {openCommentId === comment._id && ( // Check if the menu for this comment is open
+                            <div className="absolute right-0 bg-white border rounded shadow-md z-10">
+                              <button
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                onClick={() => {
+                                  setEditingCommentId(comment._id);
+                                  setEditedCommentText(comment.content);
+                                  setOpenCommentId(null); // Close the menu after selecting edit
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
+                                onClick={() => {
+                                  handleDeleteComment(comment._id);
+                                  setOpenCommentId(null); // Close the menu after deleting
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
               {/* Add Comment */}
               <CommentSection
                 getProfilePicUrl={getProfilePicUrl}
