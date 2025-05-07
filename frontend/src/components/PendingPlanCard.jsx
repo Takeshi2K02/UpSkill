@@ -1,12 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { updateLearningPlanDueDate, deleteLearningPlan } from '../services/learningPlanService';
-import ConfirmationModal from './ConfirmationModal';
 import { FiCalendar, FiPlay, FiMoreVertical } from 'react-icons/fi';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 export default function PendingPlanCard({ plan }) {
   const [dueDate, setDueDate] = useState(plan.dueDate ? new Date(plan.dueDate) : null);
@@ -14,11 +11,6 @@ export default function PendingPlanCard({ plan }) {
   const [open, setOpen] = useState(false);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
-  const [confirmAction, setConfirmAction] = useState(() => () => {});
-  const [confirmTitle, setConfirmTitle] = useState('');
-  const [confirmDescription, setConfirmDescription] = useState('');
-  const [confirmButtonText, setConfirmButtonText] = useState('Confirm');
 
   const navigate = useNavigate();
   const buttonRef = useRef(null);
@@ -35,7 +27,7 @@ export default function PendingPlanCard({ plan }) {
 
   const handleStartLearning = async () => {
     if (!dueDate) {
-      toast.error('Please select a due date first!');
+      alert('Please select a due date first!');
       return;
     }
     try {
@@ -45,28 +37,28 @@ export default function PendingPlanCard({ plan }) {
       navigate(`/learning-plan/${planId}`);
     } catch (error) {
       console.error('Failed to start learning plan:', error);
-      toast.error('Something went wrong. Try again.');
+      alert('Something went wrong. Try again.');
     } finally {
       setLoading(false);
     }
-  };  
+  };
 
-  const handleDelete = () => {
-    setIsOptionsOpen(false);
-    setConfirmTitle('Delete Learning Plan?');
-    setConfirmDescription('Are you sure you want to delete this learning plan? This action cannot be undone.');
-    setConfirmButtonText('Delete');
-    setConfirmAction(() => async () => {
-      try {
-        await deleteLearningPlan(planId);
-        window.location.reload(); // simple reload for now
-      } catch (error) {
-        console.error('Failed to delete learning plan:', error);
-        alert('Failed to delete learning plan.');
-      }
-    });
-    setConfirmModalOpen(true);
-  };   
+  const handleEdit = () => {
+    alert('Edit Learning Plan (to be implemented)');
+  };
+
+  const handleDelete = async () => {
+    if (!window.confirm('Are you sure you want to delete this learning plan?')) return;
+  
+    try {
+      await deleteLearningPlan(plan._id?.$oid || plan.id);
+      alert('Learning plan deleted successfully!');
+      window.location.reload(); // simple full reload to update list
+    } catch (error) {
+      console.error('Failed to delete learning plan:', error);
+      alert('Failed to delete learning plan.');
+    }
+  };  
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -173,6 +165,15 @@ export default function PendingPlanCard({ plan }) {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
+                    handleEdit();
+                  }}
+                  className="w-full text-left text-gray-700 hover:bg-gray-100 px-4 py-2 text-sm"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
                     handleDelete();
                   }}
                   className="w-full text-left text-red-600 hover:bg-gray-100 hover:text-red-700 px-4 py-2 text-sm"
@@ -198,17 +199,6 @@ export default function PendingPlanCard({ plan }) {
           {plan.description || 'No description available.'}
         </div>
       )}
-      <ConfirmationModal
-        isOpen={confirmModalOpen}
-        title={confirmTitle}
-        description={confirmDescription}
-        confirmText={confirmButtonText}
-        onCancel={() => setConfirmModalOpen(false)}
-        onConfirm={() => {
-          setConfirmModalOpen(false);
-          confirmAction();
-        }}
-      />
     </div>
   );
 }

@@ -17,7 +17,6 @@ public class User {
     private String bio;
     private List<String> followers = new ArrayList<>();
     private List<String> following = new ArrayList<>();
-    private String password;
     
     // Constructors, getters, and setters
     public User() {}
@@ -53,9 +52,5 @@ public class User {
     
     public int getFollowersCount() { return followers != null ? followers.size() : 0; }
     public int getFollowingCount() { return following != null ? following.size() : 0; }
-
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
-
 }
 

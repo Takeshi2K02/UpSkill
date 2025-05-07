@@ -1,16 +1,16 @@
-import React, { useState, useContext, useRef } from "react";
+import React, { useState, useContext, useRef, useEffect } from "react";
 import { Image, Video } from "cloudinary-react";
 import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import CommentSection from "./CommentSection";
-import PostActionbar from "./PostActionbar";
-import CommentList from "./CommentList";
 
 const Post = ({
   post,
   onLike,
   onCommentChange,
   onAddComment,
+  onUpdateComment,
+  onDeleteComment,
   commentInputs,
   cloudName,
   getProfilePicUrl,
@@ -26,6 +26,12 @@ const Post = ({
   const [previews, setPreviews] = useState([]);
   const [removedAttachments, setRemovedAttachments] = useState([]);
   const fileInputRef = useRef(null);
+  const menuRef = useRef(null);
+  const [editingCommentId, setEditingCommentId] = useState(null); // ID of the comment being edited
+  const [editedCommentText, setEditedCommentText] = useState(""); // Text of the comment being edited
+  const [openCommentId, setOpenCommentId] = useState(null);
+
+
 
   const renderAttachment = (url) => {
     const isVideo =
@@ -157,6 +163,61 @@ const Post = ({
     setPreviews([]);
     setRemovedAttachments([]);
   };
+
+  const toggleCommentMenu = (commentId) => {
+    setOpenCommentId((prevId) => (prevId === commentId ? null : commentId));
+  };
+
+  const handleClickOutside = (event) => {
+    if (!event.target.closest(".relative")) {
+      setOpenCommentId(null); // Close all menus
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+
+  const handleEditComment = (commentId, currentContent) => {
+    setEditingCommentId(commentId);
+    setEditedCommentText(currentContent);
+  };
+
+  const handleSaveComment = async (commentId) => {
+    try {
+      await onUpdateComment(post.id, commentId, editedCommentText); // Call the backend API
+      const updatedComments = post.commentsList.map((comment) =>
+        comment._id === commentId ? { ...comment, content: editedCommentText } : comment
+      );
+      post.commentsList = updatedComments; // Update the comments list
+      setEditingCommentId(null);
+      setEditedCommentText("");
+    } catch (error) {
+      console.error("Failed to update comment:", error);
+    }
+  };
+
+  const handleDeleteComment = async (commentId) => {
+    if (window.confirm("Are you sure you want to delete this comment?")) {
+      try {
+        await onDeleteComment(post.id, commentId); // Call the backend API
+        const updatedComments = post.commentsList.filter(
+          (comment) => comment._id !== commentId
+        );
+        post.commentsList = updatedComments; // Update the comments list
+      } catch (error) {
+        console.error("Failed to delete comment:", error);
+      }
+    }
+  };
+
+ 
+  
+
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
@@ -384,25 +445,159 @@ const Post = ({
           {/* Post Actions */}
           {user && (
             <>
-             <PostActionbar
-                post={post}
-                onLike={onLike}
-                onCommentChange={onCommentChange}
-                onAddComment={onAddComment}
-                commentInputs={commentInputs}
-                postId={post.id}
-                UserId={user.id}
-                getProfilePicUrl={getProfilePicUrl}
-             />
-              {/* Comments List */}
-              <CommentList
-                post={post}
-                getProfilePicUrl={getProfilePicUrl}
-                UserId={user.id}
-                onCommentChange={onCommentChange}
-                onAddComment={onAddComment}
-                commentInputs={commentInputs}
-                postId={post.id}/>
+              <div className="px-4 py-2 border-t border-gray-100 flex justify-around">
+                <button
+                  className={`flex items-center space-x-1 p-2 rounded-lg ${
+                    post.isLiked
+                      ? "text-blue-500"
+                      : "text-gray-500 hover:text-blue-500"
+                  }`}
+                  onClick={() => onLike(post.id)}
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
+                  />
+                  </svg>
+                  <span>Like</span>
+                </button>
+                <button className="flex items-center space-x-1 text-gray-500 hover:text-blue-500 p-2 rounded-lg">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                    />
+                  </svg>
+                  <span>Comment</span>
+                </button>
+                <button className="flex items-center space-x-1 text-gray-500 hover:text-blue-500 p-2 rounded-lg">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z"
+                    />
+                  </svg>
+                  <span>Share</span>
+                </button>
+              </div>
+
+             {/* Comments List */}
+              {post.commentsList.length > 0 && (
+                <div className="px-4 py-2 border-t border-gray-100 bg-gray-50">
+                  {post.commentsList.map((comment) => (
+                    <div key={comment._id} className="flex items-start space-x-2 mb-3 relative">
+                      {/* Avatar */}
+                      <img
+                        src={comment.avatar}
+                        alt={comment.username}
+                        className="w-8 h-8 rounded-full object-cover mt-1"
+                      />
+
+                      {/* Comment Content */}
+                      <div className="bg-white p-2 rounded-lg flex-1">
+                      {editingCommentId === comment._id ? (
+                        <div>
+                          <textarea
+                            className="w-full p-2 border border-gray-300 rounded-md"
+                            value={editedCommentText}
+                            onChange={(e) => setEditedCommentText(e.target.value)}
+                          />
+                          <div className="mt-2 flex space-x-2">
+                            <button
+                              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                              onClick={() => handleSaveComment(comment._id)}
+                            >
+                              Save
+                            </button>
+                            <button
+                              className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                              onClick={() => setEditingCommentId(null)}
+                            >
+                              Cancel
+                            </button>
+                          </div>
+                        </div>
+                      ) : (
+                        <>
+                          <p className="font-medium text-sm">{comment.username}</p>
+                          <p className="text-gray-800 text-sm">{comment.content}</p>
+                          <p className="text-gray-500 text-xs mt-1">{comment.timestamp}</p>
+                        </>
+                      )}
+                    </div>
+
+
+                      {/* Three-Dot Menu for Comments */}
+                      {user?.id === comment.userId && ( // Only show the menu if the user owns the comment
+                        <div className="relative" ref={openCommentId==comment._id ? menuRef : null}>
+                          <button
+                            className="text-gray-500 hover:text-gray-700"
+                            onClick={(e) => {
+                              e.stopPropagation(); // Prevent event bubbling
+                              toggleCommentMenu(comment._id);
+                            }} // Use the updated toggle logic
+                          >
+                            &#x22EE; {/* Three-dot menu */}
+                          </button>
+
+                          {openCommentId === comment._id && ( // Check if the menu for this comment is open
+                            <div className="absolute right-0 bg-white border rounded shadow-md z-10">
+                              <button
+                                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
+                                onClick={() => {
+                                  console.log("Edit clicked");
+                                  setEditingCommentId(comment._id);
+                                  setEditedCommentText(comment.content);
+                                  setOpenCommentId(null); // Close the menu after selecting edit
+                                }}
+                              >
+                                Edit
+                              </button>
+                              <button
+                                className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
+                                onClick={() => {
+                                  console.log("Delete clicked");
+                                  handleDeleteComment(comment._id);
+                                  setOpenCommentId(null); // Close the menu after deleting
+                                }}
+                              >
+                                Delete
+                              </button>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+
               {/* Add Comment */}
               <CommentSection
                 getProfilePicUrl={getProfilePicUrl}
@@ -410,7 +605,8 @@ const Post = ({
                 onAddComment={onAddComment}
                 postId={post.id}
                 commentInputs={commentInputs}
-                UserId={user.id}/>
+                UserId={user.id}
+              />
             </>
           )}
         </>
@@ -418,4 +614,5 @@ const Post = ({
     </div>
   );
 };
+
 export default Post;
