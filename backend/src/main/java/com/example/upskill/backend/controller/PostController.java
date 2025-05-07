@@ -101,15 +101,38 @@ public class PostController {
         return postRepository.save(post);
     }
 
-    @PostMapping("/{id}/comments")
-    public Post addComment(@PathVariable String id, @RequestBody Map<String,String> body) {
-        String userId = body.get("userId"), content = body.get("content");
-        Post post = postRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Post not found: " + id));
-        Comment c = new Comment(userId, content);
-        post.getComments().add(c);
-        return postRepository.save(post);
+    // Removed duplicate addComment method to resolve compilation error.
+
+
+@PostMapping("/{id}/comments")
+public Post addComment(@PathVariable String id, @RequestBody Map<String, String> payload) {
+    String userId = payload.get("userId");
+    String content = payload.get("content");
+
+    // Validate input
+    if (userId == null || userId.isEmpty()) {
+        throw new IllegalArgumentException("User ID is required");
     }
+    if (content == null || content.isEmpty()) {
+        throw new IllegalArgumentException("Content is required");
+    }
+
+    // Find the post by ID
+    Post post = postRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Post not found with id: " + id));
+
+    // Ensure comments list is not null
+    if (post.getComments() == null) {
+        post.setComments(new ArrayList<>());
+    }
+
+    // Create and add the comment
+    Comment comment = new Comment(userId, content);
+    post.getComments().add(comment);
+
+    // Save the updated post
+    return postRepository.save(post);
+}
 
     @GetMapping("/user/{userId}")
     public List<PostResponse> getPostsByUser(@PathVariable String userId) {
@@ -117,6 +140,7 @@ public class PostController {
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
+
 
     //
     // Community‐group endpoints
@@ -176,6 +200,51 @@ public class PostController {
     //
     // Helpers
     //
+
+
+@DeleteMapping("/{postId}/comments/{commentId}")
+public Post deleteComment(
+        @PathVariable String postId,
+        @PathVariable String commentId,
+        @RequestParam String userId) {
+
+    // Find the post by ID
+    Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new RuntimeException("Post not found: " + postId));
+
+    // Remove the comment if the user is authorized
+    boolean commentRemoved = post.getComments().removeIf(comment ->
+            comment.getId().equals(commentId) &&
+            (comment.getUserId().equals(userId) || post.getUserId().equals(userId))
+    );
+
+    if (!commentRemoved) {
+        throw new RuntimeException("Comment not found or user not authorized to delete");
+    }
+
+    // Save the updated post
+    return postRepository.save(post);
+}
+
+    @PutMapping("/{postId}/comments/{commentId}")
+    public Post editComment(
+        @PathVariable String postId,
+        @PathVariable String commentId,
+        @RequestParam String userId,
+        @RequestBody String newContent) {
+    Post post = postRepository.findById(postId)
+            .orElseThrow(() -> new RuntimeException("Post not found: " + postId));
+
+    post.getComments().forEach(comment -> {
+        if (comment.getId().equals(commentId) && comment.getUserId().equals(userId)) {
+            comment.setContent(newContent);
+        }
+    });
+
+    return postRepository.save(post);
+}
+    
+
 
     private void handleAttachments(Post post, MultipartFile[] files) throws IOException {
         if (files != null && files.length > 0) {
