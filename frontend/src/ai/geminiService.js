@@ -14,7 +14,15 @@ export async function generateGeminiContent(prompt) {
 
     const data = await res.json();
 
-    const output = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    //const output = data?.candidates?.[0]?.content?.parts?.[0]?.text; // uncomment if the output have the format of markdown
+
+    let output = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+    // Patch escaped newlines if necessary
+    if (typeof output === 'string' && output.includes('\\n')) {
+      output = output.replace(/\\n/g, '\n');
+    }
+
     return output || '⚠️ No response generated.';
   } catch (error) {
     console.error('[Gemini Error]', error);

@@ -4,6 +4,10 @@ import ReactMarkdown from 'react-markdown';
 import CommonLayout from '../layouts/CommonLayout';
 import { getLearningPlanById, updateTopicStatus, updateLearningPlan } from '../services/learningPlanService';
 import confetti from 'canvas-confetti';
+import remarkGfm from 'remark-gfm';
+import rehypeHighlight from 'rehype-highlight';
+import 'highlight.js/styles/github.css';
+
 
 export default function LearningPlanDetail() {
   const celebrate = () => {
@@ -177,8 +181,17 @@ export default function LearningPlanDetail() {
                         Mark as Read
                       </label>
                     </div>
-                    <div className="prose prose-blue max-w-none">
-                      <ReactMarkdown>{topic.textContent}</ReactMarkdown>
+                    <div className="prose prose-blue max-w-none [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:mb-3 [&_p]:mb-4">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        rehypePlugins={[rehypeHighlight]}
+                        components={{
+                          li: ({ children }) => <li className="mb-2">{children}</li>,
+                          p: ({ children }) => <p className="mb-4">{children}</p>,
+                        }}
+                      >
+                        {topic.textContent}
+                      </ReactMarkdown>
                     </div>
                   </div>
 
