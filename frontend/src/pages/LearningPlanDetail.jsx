@@ -120,7 +120,12 @@ export default function LearningPlanDetail() {
           </div>
         ) : plan ? (
           <>
-            <h2 className="text-2xl font-bold text-blue-700 mb-6">{plan.title}</h2>
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-extrabold text-blue-800 tracking-tight mb-2">
+                🚀 {plan.title}
+              </h2>
+              <div className="mx-auto w-24 h-1 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 rounded-full shadow-sm" />
+            </div>
 
             {/* Progress Bar */}
             <div className="mb-10 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 shadow-sm">
@@ -140,7 +145,17 @@ export default function LearningPlanDetail() {
               </div>
             </div>
 
-            <p className="text-gray-700 mb-4">{plan.description}</p>
+            <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 rounded-xl shadow-sm p-5 mb-10">
+              <div className="flex items-start gap-3">
+                <div className="text-blue-500 text-xl mt-1">🧠</div>
+                <div>
+                  <h3 className="text-md font-semibold text-blue-700 mb-2">Plan Overview</h3>
+                  <p className="text-gray-700 leading-relaxed text-sm whitespace-pre-line">
+                    {plan.description}
+                  </p>
+                </div>
+              </div>
+            </div>
 
             <h3 className="text-xl font-semibold text-gray-800 mb-3">Topics</h3>
             <div className="space-y-6">
