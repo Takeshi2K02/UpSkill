@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import CommonLayout from '../layouts/CommonLayout';
+
 
 export default function GroupForm() {
   const { id } = useParams();                  // group ID for edit mode
@@ -73,9 +75,17 @@ export default function GroupForm() {
         setError(err.message);
       })
       .finally(() => setLoading(false));
+
   };
 
+
+
+  
+  
+  
+    
   return (
+    <CommonLayout>
     <div className="max-w-3xl mx-auto p-8 bg-white rounded-2xl shadow-lg mt-10">
       <h1 className="text-3xl font-bold text-indigo-700 mb-6">
         {isEdit ? 'Edit Community Group' : 'Create New Community Group'}
@@ -135,5 +145,8 @@ export default function GroupForm() {
         </div>
       </form>
     </div>
+  </CommonLayout>
   );
 }
+
+

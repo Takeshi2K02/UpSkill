@@ -5,8 +5,10 @@ import DescriptionInput from '../components/DescriptionInput';
 import TopicList from '../components/TopicList';
 import { generatePlanTitlePrompt, generateTopicSuggestionsPrompt } from '../ai/prompts';
 import { generateGeminiContent } from '../ai/geminiService';
-import { normalizeWeights } from '../utils/weightUtils';
 import { createLearningPlan } from '../services/learningPlanService';
+import { assignWeightsToTopics } from '../utils/assignWeightsToTopics';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function CreateLearningPlan() {
   const [selectedTitle, setSelectedTitle] = useState('');
@@ -20,15 +22,12 @@ export default function CreateLearningPlan() {
   const [descError, setDescError] = useState('');
 
   const canSave = () => {
-    if (!selectedTitle.trim()) return false;
-    if (!description.trim()) return false;
-    if (topics.length === 0) return false;
-    const validTopics = topics.filter((t) =>
-      t.name.trim() !== '' &&
-      (t.textContent.trim() !== '' || (Array.isArray(t.resources) && t.resources.length > 0))
+    if (!selectedTitle.trim() || !description.trim() || topics.length === 0) return false;
+    return topics.some(
+      (t) =>
+        t.name.trim() !== '' &&
+        (t.textContent.trim() !== '' || (Array.isArray(t.resources) && t.resources.length > 0))
     );
-    if (validTopics.length === 0) return false;
-    return true;
   };
 
   useEffect(() => {
@@ -76,20 +75,14 @@ export default function CreateLearningPlan() {
   };
 
   const handleAddTopic = async () => {
-    let valid = true;
     if (!selectedTitle.trim()) {
       setTitleError('Please enter or select a title before adding a topic.');
-      valid = false;
-    } else {
-      setTitleError('');
+      return;
     }
     if (!description.trim()) {
       setDescError('Please write a description before adding a topic.');
-      valid = false;
-    } else {
-      setDescError('');
+      return;
     }
-    if (!valid) return;
 
     let aiSuggestions = [...cachedAISuggestions];
     if (!aiSuggestions.length) {
@@ -167,31 +160,40 @@ export default function CreateLearningPlan() {
   const handleSaveLearningPlan = async () => {
     const userId = sessionStorage.getItem('facebookId');
     if (!userId) {
-      alert('User not logged in.');
+      toast.error('User not logged in.');
       return;
     }
-  
-    const learningPlan = {
-      userId,
-      title: selectedTitle,
-      description,
-      topics: normalizeWeights(topics).map(topic => ({
-        ...topic,
-        status: 'incomplete',
-      })),
-    };
-  
+
     try {
       setLoading(true);
+      const enrichedTopics = await assignWeightsToTopics(topics);
+
+      const learningPlan = {
+        userId,
+        title: selectedTitle,
+        description,
+        topics: enrichedTopics,
+        progress: 0
+      };
+
       await createLearningPlan(learningPlan);
-      alert('Learning plan saved successfully!');
+      toast.success('Learning plan saved successfully!');
+      resetForm();
     } catch (error) {
       console.error(error);
-      alert('Error while saving learning plan.');
+      toast.error('Error while saving learning plan.');
     } finally {
       setLoading(false);
     }
-  };  
+  };
+
+  const resetForm = () => {
+    setSelectedTitle('');
+    setDescription('');
+    setTopics([]);
+    setUsedTopicSuggestions([]);
+    setCachedAISuggestions([]);
+  };
 
   return (
     <CommonLayout>
@@ -219,6 +221,7 @@ export default function CreateLearningPlan() {
           loading={loading}
           canSave={canSave}
         />
+        <ToastContainer position="top-center" autoClose={3000} />
       </div>
     </CommonLayout>
   );

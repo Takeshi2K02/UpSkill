@@ -2,11 +2,17 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FiPlay, FiMoreVertical } from 'react-icons/fi';
 import { deleteLearningPlan } from '../services/learningPlanService';
+import ConfirmationModal from './ConfirmationModal';
 
 export default function CurrentPlanCard({ plan }) {
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
   const [isOptionsOpen, setIsOptionsOpen] = useState(false);
+  const [confirmModalOpen, setConfirmModalOpen] = useState(false);
+  const [confirmAction, setConfirmAction] = useState(() => () => {});
+  const [confirmTitle, setConfirmTitle] = useState('');
+  const [confirmDescription, setConfirmDescription] = useState('');
+  const [confirmButtonText, setConfirmButtonText] = useState('Confirm');
 
   const optionsRef = useRef(null);
 
@@ -24,18 +30,22 @@ export default function CurrentPlanCard({ plan }) {
     navigate(`/learning-plan/edit/${planId}`);
   };
 
-  const handleDelete = async () => {
-    if (!window.confirm('Are you sure you want to delete this learning plan?')) return;
-  
-    try {
-      await deleteLearningPlan(plan._id?.$oid || plan.id);
-      alert('Learning plan deleted successfully!');
-      window.location.reload(); // simple full reload to update list
-    } catch (error) {
-      console.error('Failed to delete learning plan:', error);
-      alert('Failed to delete learning plan.');
-    }
-  };  
+  const handleDelete = () => {
+    setIsOptionsOpen(false);
+    setConfirmTitle('Delete Learning Plan?');
+    setConfirmDescription('Are you sure you want to delete this learning plan? This action cannot be undone.');
+    setConfirmButtonText('Delete');
+    setConfirmAction(() => async () => {
+      try {
+        await deleteLearningPlan(planId);
+        window.location.reload(); // simple full reload for now
+      } catch (error) {
+        console.error('Failed to delete learning plan:', error);
+        alert('Failed to delete learning plan.');
+      }
+    });
+    setConfirmModalOpen(true);
+  };    
 
   useEffect(() => {
     function handleClickOutside(event) {
@@ -56,18 +66,31 @@ export default function CurrentPlanCard({ plan }) {
 
   const calculateProgress = (plan) => {
     if (!plan || !plan.topics || plan.topics.length === 0) return 0;
-    let totalWeight = 0;
-    let completedWeight = 0;
+  
+    let total = 0;
+    let done = 0;
+  
     for (const topic of plan.topics) {
-      const weight = topic.weight || 0;
-      totalWeight += weight;
-      if (topic.status === 'completed') {
-        completedWeight += weight;
+      total += topic.weight || 0;
+  
+      if (topic.textCompleted && topic.textWeight) {
+        done += topic.textWeight;
+      }
+  
+      if (Array.isArray(topic.resources) && Array.isArray(topic.resourceCompletion)) {
+        for (let i = 0; i < topic.resources.length; i++) {
+          const res = topic.resources[i];
+          const completed = topic.resourceCompletion[i];
+          if (res.weight && completed) {
+            done += res.weight;
+          }
+        }
       }
     }
-    if (totalWeight === 0) return 0;
-    return Math.round((completedWeight / totalWeight) * 100);
-  };
+  
+    if (total === 0) return 0;
+    return Math.round((done / total) * 100);
+  };  
 
   const progress = calculateProgress(plan);
 
@@ -157,6 +180,17 @@ export default function CurrentPlanCard({ plan }) {
           {plan.description || 'No description available.'}
         </div>
       )}
+      <ConfirmationModal
+        isOpen={confirmModalOpen}
+        title={confirmTitle}
+        description={confirmDescription}
+        confirmText={confirmButtonText}
+        onCancel={() => setConfirmModalOpen(false)}
+        onConfirm={() => {
+          setConfirmModalOpen(false);
+          confirmAction();
+        }}
+      />
     </div>
   );
 }
