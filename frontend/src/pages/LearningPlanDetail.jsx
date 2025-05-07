@@ -123,11 +123,18 @@ export default function LearningPlanDetail() {
             <h2 className="text-2xl font-bold text-blue-700 mb-6">{plan.title}</h2>
 
             {/* Progress Bar */}
-            <div className="mb-6">
-              <p className="text-sm text-gray-600">Progress: {progress}%</p>
-              <div className="w-full h-2 bg-gray-200 rounded mt-2">
+            <div className="mb-10 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-md font-semibold text-blue-700 flex items-center gap-2">
+                  📈 Progress
+                </h4>
+                <span className="text-sm font-medium text-blue-800">
+                  {progress}% completed
+                </span>
+              </div>
+              <div className="relative w-full h-4 bg-blue-200 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-500 rounded"
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-blue-400 to-blue-600 shadow-md transition-all duration-500 ease-out"
                   style={{ width: `${progress}%` }}
                 />
               </div>
