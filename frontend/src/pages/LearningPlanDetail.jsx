@@ -3,8 +3,41 @@ import { useParams } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import CommonLayout from '../layouts/CommonLayout';
 import { getLearningPlanById, updateTopicStatus, updateLearningPlan } from '../services/learningPlanService';
+import confetti from 'canvas-confetti';
 
 export default function LearningPlanDetail() {
+  const celebrate = () => {
+    const duration = 2 * 1000; // 2 seconds
+    const animationEnd = Date.now() + duration;
+  
+    const skew = 1;
+  
+    const interval = setInterval(() => {
+      const timeLeft = animationEnd - Date.now();
+  
+      if (timeLeft <= 0) {
+        clearInterval(interval);
+        return;
+      }
+  
+      const particleCount = 200 * (timeLeft / duration); // ✨ Higher particle count
+      confetti({
+        particleCount,
+        startVelocity: 45,
+        spread: 360,
+        angle: 90,
+        ticks: 80,
+        gravity: 1.2,
+        origin: {
+          x: Math.random(),
+          y: Math.random() * 0.4
+        },
+        scalar: 1.2, // Slightly larger particles
+        zIndex: 999
+      });
+    }, 200);
+  };  
+  
   const { id } = useParams();
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -121,6 +154,16 @@ export default function LearningPlanDetail() {
                           onChange={async (e) => {
                             const updatedTopics = [...plan.topics];
                             updatedTopics[idx].textCompleted = e.target.checked;
+                          
+                            // ✅ Update topic.status based on all content
+                            const allVideosDone = updatedTopics[idx].resourceCompletion?.every(Boolean);
+                            const newStatus = e.target.checked && allVideosDone ? 'completed' : 'incomplete';
+                            if (newStatus === 'completed' && updatedTopics[idx].status !== 'completed') {
+                              celebrate();
+                            }
+                            updatedTopics[idx].status = newStatus;
+
+                          
                             const updatedPlan = { ...plan, topics: updatedTopics };
                             setPlan(JSON.parse(JSON.stringify(updatedPlan)));
                             try {
@@ -128,7 +171,7 @@ export default function LearningPlanDetail() {
                             } catch (error) {
                               console.error('Failed to update text progress:', error);
                             }
-                          }}
+                          }}                          
                           className="h-4 w-4 text-blue-600"
                         />
                         Mark as Read
@@ -167,7 +210,19 @@ export default function LearningPlanDetail() {
                                     if (!updatedTopics[idx].resourceCompletion) {
                                       updatedTopics[idx].resourceCompletion = new Array(topic.resources.length).fill(false);
                                     }
+                                  
                                     updatedTopics[idx].resourceCompletion[idx2] = e.target.checked;
+                                  
+                                    // ✅ Update topic.status based on all content
+                                    const allVideosDone = updatedTopics[idx].resourceCompletion.every(Boolean);
+                                    const textDone = updatedTopics[idx].textCompleted;
+                                    const newStatus = textDone && allVideosDone ? 'completed' : 'incomplete';
+                                    if (newStatus === 'completed' && updatedTopics[idx].status !== 'completed') {
+                                      confetti({ spread: 80, particleCount: 60, origin: { y: 0.6 } });
+                                    }
+                                    updatedTopics[idx].status = newStatus;
+
+                                  
                                     const updatedPlan = { ...plan, topics: updatedTopics };
                                     setPlan(JSON.parse(JSON.stringify(updatedPlan)));
                                     try {
@@ -175,7 +230,7 @@ export default function LearningPlanDetail() {
                                     } catch (error) {
                                       console.error('Failed to update video progress:', error);
                                     }
-                                  }}
+                                  }}                                  
                                   className="h-4 w-4 text-blue-600"
                                 />
                                 Mark as Watched
@@ -187,29 +242,6 @@ export default function LearningPlanDetail() {
                     ) : (
                       <div className="text-gray-400 text-sm">No resources available.</div>
                     )}
-                  </div>
-
-                  {/* Completion Button */}
-                  <div className="mt-4 flex justify-end">
-                    <button
-                      onClick={async () => {
-                        const newStatus = topic.status === 'completed' ? 'incomplete' : 'completed';
-                        const updatedTopics = plan.topics.map((t, i) =>
-                          i === idx ? { ...t, status: newStatus } : t
-                        );
-                        const updatedPlan = { ...plan, topics: updatedTopics };
-                        setPlan(updatedPlan);
-                        try {
-                          await updateTopicStatus(id, idx, newStatus);
-                        } catch (error) {
-                          console.error('Failed to update topic status:', error);
-                        }
-                      }}
-                      disabled={topic.status === 'completed'}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md disabled:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      {topic.status === 'completed' ? 'Completed' : 'Mark as Completed'}
-                    </button>
                   </div>
                 </div>
               ))}
