@@ -20,6 +20,8 @@ import GroupDetail from './pages/GroupDetail';
 import GroupForm from './pages/GroupForm';
 import ComingSoon from './pages/ComingSoon';
 import SignUp from './pages/SignUp';
+import ProgressTest from './pages/ProgressTest';
+import WeightForm from './pages/WeightForm';
 
 function App() {
   const { user, logout } = useContext(AuthContext);
@@ -72,6 +74,10 @@ function App() {
           <Route path="/chatbot" element={<PrivateRoute><ComingSoon /></PrivateRoute>} /> {/* ✨ Newly added */}
 
           <Route path="/signup" element={<SignUp />} />
+
+          <Route path="/progress-test" element={<ProgressTest />} />
+
+          <Route path="/set-weights" element={<WeightForm />} />
 
         </Routes>
 
