@@ -45,6 +45,28 @@ export default function LearningPlanDetail() {
   const { id } = useParams();
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [expandedModules, setExpandedModules] = useState([]);
+  const [expandedTextSections, setExpandedTextSections] = useState([]);
+  const [expandedResourceSections, setExpandedResourceSections] = useState([]);
+
+
+  const toggleModule = (index) => {
+    setExpandedModules((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };  
+
+  const toggleTextSection = (index) => {
+    setExpandedTextSections((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
+  
+  const toggleResourceSection = (index) => {
+    setExpandedResourceSections((prev) =>
+      prev.includes(index) ? prev.filter((i) => i !== index) : [...prev, index]
+    );
+  };
 
   useEffect(() => {
     const fetchPlan = async () => {
@@ -120,144 +142,212 @@ export default function LearningPlanDetail() {
           </div>
         ) : plan ? (
           <>
-            <h2 className="text-2xl font-bold text-blue-700 mb-6">{plan.title}</h2>
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-extrabold text-blue-800 tracking-tight mb-2">
+                🚀 {plan.title}
+              </h2>
+              <div className="mx-auto w-24 h-1 bg-gradient-to-r from-blue-400 via-blue-500 to-blue-600 rounded-full shadow-sm" />
+            </div>
 
             {/* Progress Bar */}
-            <div className="mb-6">
-              <p className="text-sm text-gray-600">Progress: {progress}%</p>
-              <div className="w-full h-2 bg-gray-200 rounded mt-2">
+            <div className="mb-10 bg-gradient-to-r from-blue-50 to-blue-100 border border-blue-200 rounded-xl p-4 shadow-sm">
+              <div className="flex items-center justify-between mb-2">
+                <h4 className="text-md font-semibold text-blue-700 flex items-center gap-2">
+                  📈 Progress
+                </h4>
+                <span className="text-sm font-medium text-blue-800">
+                  {progress}% completed
+                </span>
+              </div>
+              <div className="relative w-full h-4 bg-blue-200 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-blue-500 rounded"
+                  className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-500 via-blue-400 to-blue-600 shadow-md transition-all duration-500 ease-out"
                   style={{ width: `${progress}%` }}
                 />
               </div>
             </div>
 
-            <p className="text-gray-700 mb-4">{plan.description}</p>
+            <div className="bg-gradient-to-br from-white to-blue-50 border border-blue-100 rounded-xl shadow-sm p-5 mb-10">
+              <div className="flex items-start gap-3">
+                <div className="text-blue-500 text-xl mt-1">🧠</div>
+                <div>
+                  <h3 className="text-md font-semibold text-blue-700 mb-2">Plan Overview</h3>
+                  <p className="text-gray-700 leading-relaxed text-sm whitespace-pre-line">
+                    {plan.description}
+                  </p>
+                </div>
+              </div>
+            </div>
 
-            <h3 className="text-xl font-semibold text-gray-800 mb-3">Topics</h3>
+            <h3 className="text-xl font-semibold text-gray-800 mb-3">Modules</h3>
+
             <div className="space-y-6">
-              {plan.topics.map((topic, idx) => (
-                <div key={idx} className="bg-white rounded-2xl shadow-lg p-6 flex flex-col gap-4 border border-gray-200">
-                  {/* Title and Checkbox */}
-                  <div className="flex items-center justify-between">
-                    <h4 className="text-lg font-semibold text-gray-800">{topic.name}</h4>
-                    <span className={`text-sm px-2 py-1 rounded-full font-medium ${topic.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
-                      {topic.status === 'completed' ? 'Completed' : 'In Progress'}
-                    </span>
-                  </div>
-
-                  {/* Text Content */}
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <h5 className="font-semibold text-gray-700">Text Content</h5>
-                      <label className="flex items-center gap-2 text-sm">
-                        <input
-                          type="checkbox"
-                          checked={topic.textCompleted || false}
-                          onChange={async (e) => {
-                            const updatedTopics = [...plan.topics];
-                            updatedTopics[idx].textCompleted = e.target.checked;
-                          
-                            // ✅ Update topic.status based on all content
-                            const allVideosDone = updatedTopics[idx].resourceCompletion?.every(Boolean);
-                            const newStatus = e.target.checked && allVideosDone ? 'completed' : 'incomplete';
-                            if (newStatus === 'completed' && updatedTopics[idx].status !== 'completed') {
-                              celebrate();
-                            }
-                            updatedTopics[idx].status = newStatus;
-
-                          
-                            const updatedPlan = { ...plan, topics: updatedTopics };
-                            setPlan(JSON.parse(JSON.stringify(updatedPlan)));
-                            try {
-                              await updateLearningPlan(plan._id, updatedPlan);
-                            } catch (error) {
-                              console.error('Failed to update text progress:', error);
-                            }
-                          }}                          
-                          className="h-4 w-4 text-blue-600"
-                        />
-                        Mark as Read
-                      </label>
+              {plan.topics.map((topic, idx) => {
+                const isExpanded = expandedModules.includes(idx);
+                return (
+                  <div key={idx} className="bg-white rounded-2xl shadow-lg border border-gray-200">
+                    {/* Header */}
+                    <div
+                      className="flex items-center justify-between p-5 cursor-pointer select-none"
+                      onClick={() => toggleModule(idx)}
+                    >
+                      <h4 className="text-lg font-semibold text-gray-800">{topic.name}</h4>
+                      <div className="flex items-center gap-3">
+                        <span className={`text-sm px-2 py-1 rounded-full font-medium ${topic.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'}`}>
+                          {topic.status === 'completed' ? 'Completed' : 'In Progress'}
+                        </span>
+                        <button className="text-blue-600 text-xl focus:outline-none">
+                          {isExpanded ? '▲' : '▼'}
+                        </button>
+                      </div>
                     </div>
-                    <div className="prose prose-blue max-w-none [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:mb-3 [&_p]:mb-4">
-                      <ReactMarkdown
-                        remarkPlugins={[remarkGfm]}
-                        rehypePlugins={[rehypeHighlight]}
-                        components={{
-                          li: ({ children }) => <li className="mb-2">{children}</li>,
-                          p: ({ children }) => <p className="mb-4">{children}</p>,
-                        }}
-                      >
-                        {topic.textContent}
-                      </ReactMarkdown>
-                    </div>
-                  </div>
 
-                  {/* YouTube Resources */}
-                  <div className="bg-gray-50 rounded-lg p-4">
-                    <h5 className="font-semibold text-gray-700 mb-2">YouTube Resources</h5>
-                    {topic.resources && topic.resources.length > 0 ? (
-                      <div className="space-y-4">
-                        {topic.resources.map((res, idx2) => {
-                          const videoId = extractVideoId(res.url);
-                          return (
-                            <div key={idx2} className="flex flex-col gap-2">
-                              <div className="aspect-video">
-                                <iframe
-                                  src={`https://www.youtube.com/embed/${videoId}`}
-                                  title={res.title}
-                                  className="w-full h-full rounded-md"
-                                  frameBorder="0"
-                                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                                  allowFullScreen
-                                />
-                              </div>
-                              <label className="flex items-center gap-2 text-sm">
+                    {/* Collapsible Body */}
+                    {isExpanded && (
+                      <div className="p-6 pt-0 flex flex-col gap-6">
+                        
+                        {/* Module Content */}
+                        <div className="bg-gray-50 rounded-lg px-4 pt-4 pb-2">
+                          <div
+                            className="flex items-center justify-between mb-2 cursor-pointer"
+                            onClick={() => toggleTextSection(idx)}
+                          >
+                            <div className="text-sm font-semibold text-blue-700 flex items-center gap-1">
+                              {expandedTextSections.includes(idx) ? '▼' : '▶'} Module Content
+                            </div>
+
+                            <label
+                              className="flex items-center gap-2 text-sm cursor-pointer"
+                              onClick={(e) => e.stopPropagation()} // prevent parent toggle on checkbox click
+                            >
+                              <input
+                                type="checkbox"
+                                checked={topic.textCompleted || false}
+                                onChange={async (e) => {
+                                  const updatedTopics = [...plan.topics];
+                                  updatedTopics[idx].textCompleted = e.target.checked;
+
+                                  const allVideosDone = updatedTopics[idx].resourceCompletion?.every(Boolean);
+                                  const newStatus = e.target.checked && allVideosDone ? 'completed' : 'incomplete';
+                                  if (newStatus === 'completed' && updatedTopics[idx].status !== 'completed') {
+                                    celebrate();
+                                  }
+                                  updatedTopics[idx].status = newStatus;
+
+                                  const updatedPlan = { ...plan, topics: updatedTopics };
+                                  setPlan(JSON.parse(JSON.stringify(updatedPlan)));
+                                  try {
+                                    await updateLearningPlan(plan._id, updatedPlan);
+                                  } catch (error) {
+                                    console.error('Failed to update text progress:', error);
+                                  }
+                                }}
+                                className="h-4 w-4 accent-green-600"
+                              />
+                              <span className="text-green-700 font-medium">Mark as Read</span>
+                            </label>
+                          </div>
+
+                          {expandedTextSections.includes(idx) && (
+                            <div className="prose prose-blue max-w-none [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:mb-3 [&_p]:mb-4 pb-2">
+                              <ReactMarkdown
+                                remarkPlugins={[remarkGfm]}
+                                rehypePlugins={[rehypeHighlight]}
+                                components={{
+                                  li: ({ children }) => <li className="mb-2">{children}</li>,
+                                  p: ({ children }) => <p className="mb-4">{children}</p>,
+                                }}
+                              >
+                                {topic.textContent}
+                              </ReactMarkdown>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Online Resources */}
+                        <div className="bg-gray-50 rounded-lg px-4 pt-4 pb-2">
+                          <div
+                            className="flex items-center justify-between mb-2 cursor-pointer"
+                            onClick={() => toggleResourceSection(idx)}
+                          >
+                            <div className="text-sm font-semibold text-blue-700 flex items-center gap-1">
+                              {expandedResourceSections.includes(idx) ? '▼' : '▶'} Online Resources
+                            </div>
+
+                            {topic.resources?.length > 0 && (
+                              <label
+                                className="flex items-center gap-2 text-sm cursor-pointer"
+                                onClick={(e) => e.stopPropagation()} // prevent toggle
+                              >
+                                {/* Checkbox is marked if ALL resources are watched */}
                                 <input
                                   type="checkbox"
-                                  checked={topic.resourceCompletion?.[idx2] || false}
+                                  checked={topic.resourceCompletion?.every(Boolean) || false}
                                   onChange={async (e) => {
                                     const updatedTopics = [...plan.topics];
                                     if (!updatedTopics[idx].resourceCompletion) {
                                       updatedTopics[idx].resourceCompletion = new Array(topic.resources.length).fill(false);
                                     }
-                                  
-                                    updatedTopics[idx].resourceCompletion[idx2] = e.target.checked;
-                                  
-                                    // ✅ Update topic.status based on all content
-                                    const allVideosDone = updatedTopics[idx].resourceCompletion.every(Boolean);
+                                    const checked = e.target.checked;
+                                    updatedTopics[idx].resourceCompletion = updatedTopics[idx].resourceCompletion.map(() => checked);
+
                                     const textDone = updatedTopics[idx].textCompleted;
-                                    const newStatus = textDone && allVideosDone ? 'completed' : 'incomplete';
+                                    const newStatus = textDone && checked ? 'completed' : 'incomplete';
                                     if (newStatus === 'completed' && updatedTopics[idx].status !== 'completed') {
-                                      confetti({ spread: 80, particleCount: 60, origin: { y: 0.6 } });
+                                      celebrate();
                                     }
                                     updatedTopics[idx].status = newStatus;
 
-                                  
                                     const updatedPlan = { ...plan, topics: updatedTopics };
                                     setPlan(JSON.parse(JSON.stringify(updatedPlan)));
                                     try {
                                       await updateLearningPlan(plan._id, updatedPlan);
                                     } catch (error) {
-                                      console.error('Failed to update video progress:', error);
+                                      console.error('Failed to update bulk video progress:', error);
                                     }
-                                  }}                                  
-                                  className="h-4 w-4 text-blue-600"
+                                  }}
+                                  className="h-4 w-4 accent-green-600"
                                 />
-                                Mark as Watched
+                                <span className="text-green-700 font-medium">Mark as Watched</span>
                               </label>
-                            </div>
-                          );
-                        })}
+                            )}
+                          </div>
+
+                          {expandedResourceSections.includes(idx) && (
+                            <>
+                              {topic.resources && topic.resources.length > 0 ? (
+                                <div className="space-y-4 pt-2">
+                                  {topic.resources.map((res, idx2) => {
+                                    const videoId = extractVideoId(res.url);
+                                    return (
+                                      <div key={idx2} className="flex flex-col gap-2">
+                                        <div className="aspect-video">
+                                          <iframe
+                                            src={`https://www.youtube.com/embed/${videoId}`}
+                                            title={res.title}
+                                            className="w-full h-full rounded-md"
+                                            frameBorder="0"
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                                            allowFullScreen
+                                          />
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              ) : (
+                                <div className="text-gray-400 text-sm">No resources available.</div>
+                              )}
+                            </>
+                          )}
+                        </div>
+
+
                       </div>
-                    ) : (
-                      <div className="text-gray-400 text-sm">No resources available.</div>
                     )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </>
         ) : (
