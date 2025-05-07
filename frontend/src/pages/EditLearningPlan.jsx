@@ -6,7 +6,6 @@ import TopicList from '../components/TopicList';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getLearningPlanById, updateLearningPlan } from '../services/learningPlanService';
-import { normalizeWeights } from '../utils/weightUtils';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -82,23 +81,23 @@ export default function EditLearningPlan() {
       return;
     }
   
-    try {
-      setLoading(true);
-      const learningPlan = {
-        title: selectedTitle,
-        description,
-        topics: normalizeWeights(topics),
-        dueDate: dueDate ? dueDate.toISOString() : null,
-      };
-      await updateLearningPlan(id, learningPlan);
-      toast.success('Learning plan updated successfully!');
-      setTimeout(() => navigate('/learning-plans'), 1500);
-    } catch (error) {
-      console.error('Error updating learning plan:', error);
-      toast.error('Failed to update learning plan.');
-    } finally {
-      setLoading(false);
-    }
+    // try {
+    //   setLoading(true);
+    //   const learningPlan = {
+    //     title: selectedTitle,
+    //     description,
+    //     topics: (topics),
+    //     dueDate: dueDate ? dueDate.toISOString() : null,
+    //   };
+    //   await updateLearningPlan(id, learningPlan);
+    //   toast.success('Learning plan updated successfully!');
+    //   setTimeout(() => navigate('/learning-plans'), 1500);
+    // } catch (error) {
+    //   console.error('Error updating learning plan:', error);
+    //   toast.error('Failed to update learning plan.');
+    // } finally {
+    //   setLoading(false);
+    // }
   };      
 
   return (
