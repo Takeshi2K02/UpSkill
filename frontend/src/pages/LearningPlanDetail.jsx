@@ -8,7 +8,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github.css';
 import { CaretDown, CaretUp } from 'phosphor-react';
-
+import eventBus from '../utils/eventBus'
 
 export default function LearningPlanDetail() {
   const celebrate = () => {
@@ -240,6 +240,7 @@ export default function LearningPlanDetail() {
                                   setPlan(JSON.parse(JSON.stringify(updatedPlan)));
                                   try {
                                     await updateLearningPlan(plan._id, updatedPlan);
+                                    eventBus.emit('planUpdated');
                                   } catch (error) {
                                     console.error('Failed to update text progress:', error);
                                   }
@@ -305,6 +306,7 @@ export default function LearningPlanDetail() {
                                     setPlan(JSON.parse(JSON.stringify(updatedPlan)));
                                     try {
                                       await updateLearningPlan(plan._id, updatedPlan);
+                                      eventBus.emit('planUpdated');
                                     } catch (error) {
                                       console.error('Failed to update bulk video progress:', error);
                                     }

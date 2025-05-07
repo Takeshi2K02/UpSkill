@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getLearningPlansByUser } from '../services/learningPlanService';
 import { getGroupsByUser, getGroupsByAdmin, getAllGroups } from '../services/groupService';
+import eventBus from '../utils/eventBus';
 
 export default function RightPanel() {
   const role        = sessionStorage.getItem('role');
@@ -27,26 +28,36 @@ export default function RightPanel() {
     fetchGroups();
   }, [role, userId]);
 
-  useEffect(() => {
-    async function fetchCurrentPlans() {
-      try {
-        const allPlans = await getLearningPlansByUser(userId);
-        const filtered = allPlans.filter(plan => {
-          const topics      = plan.topics || [];
-          const totalWeight = topics.reduce((s, t) => s + (t.weight || 0), 0);
-          const doneWeight  = topics
-            .filter(t => t.status === 'completed')
-            .reduce((s, t) => s + (t.weight || 0), 0);
-          const pct = totalWeight ? Math.round(doneWeight / totalWeight * 100) : 0;
-          return plan.dueDate && pct < 100;
-        });
-        setCurrentPlans(filtered);
-      } catch (e) {
-        console.error('Failed to fetch plans:', e);
-      }
+  const fetchCurrentPlans = async () => {
+    try {
+      const allPlans = await getLearningPlansByUser(userId);
+      const filtered = allPlans.filter(plan => {
+        const topics = plan.topics || [];
+        const totalWeight = topics.reduce((s, t) => s + (t.weight || 0), 0);
+        const doneWeight = topics
+          .filter(t => t.status === 'completed')
+          .reduce((s, t) => s + (t.weight || 0), 0);
+        const pct = totalWeight ? Math.round((doneWeight / totalWeight) * 100) : 0;
+        return plan.dueDate && pct < 100;
+      });
+      setCurrentPlans(filtered);
+    } catch (e) {
+      console.error('Failed to fetch plans:', e);
     }
+  };
+  
+  useEffect(() => {
     fetchCurrentPlans();
-  }, [userId]);
+  }, [userId]);  
+
+  useEffect(() => {
+    const handleRefresh = () => {
+      fetchCurrentPlans();
+    };
+  
+    eventBus.on('planUpdated', handleRefresh);
+    return () => eventBus.off('planUpdated', handleRefresh);
+  }, []);
 
   useEffect(() => {
     async function fetchUsers() {
