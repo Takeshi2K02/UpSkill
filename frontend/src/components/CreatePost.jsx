@@ -15,8 +15,8 @@ const CreatePost = ({
   getProfilePicUrl
 }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-lg border border-blue-100 p-6 mb-6">
-  <form onSubmit={handlePostSubmit}>
+    <div className="bg-gradient-to-br from-[#e0f2ff] via-white to-[#d0e8ff] rounded-2xl shadow-lg border border-[#a0c4ff] p-6 mb-6">
+    <form onSubmit={handlePostSubmit}>
     <div className="flex items-start space-x-4">
       <img
         src={getProfilePicUrl(user.id)}
