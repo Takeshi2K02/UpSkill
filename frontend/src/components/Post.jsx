@@ -330,7 +330,7 @@ const Post = ({
                   {post.attachments
                     .filter((url) => !removedAttachments.includes(url))
                     .map((url, index) => (
-                      <div key={index}>{renderAttachment(url)}</div>
+                      <div key={url}>{renderAttachment(url)}</div>
                     ))}
                 </div>
               </div>
