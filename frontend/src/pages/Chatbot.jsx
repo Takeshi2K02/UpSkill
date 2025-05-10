@@ -3,6 +3,10 @@ import useAI from "../ai/useAI";
 import { getChatHistory, saveMessage, getRecentMessages } from "../services/chatService";
 import { Send, Loader2 } from "lucide-react";
 import CommonLayout from "../layouts/CommonLayout";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
+import "highlight.js/styles/github.css";
 
 export default function Chatbot() {
   const { loading, askGemini } = useAI();
@@ -72,7 +76,22 @@ export default function Chatbot() {
                     : "mr-auto bg-gray-100 text-gray-900"
                 }`}
               >
-                {msg.text}
+                {msg.sender === "ai" ? (
+                  <div className="prose prose-blue max-w-none [&_ul]:list-disc [&_ol]:list-decimal [&_ul]:pl-6 [&_ol]:pl-6 [&_li]:mb-3 [&_p]:mb-4 pb-2">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      rehypePlugins={[rehypeHighlight]}
+                      components={{
+                        li: ({ children }) => <li className="mb-2">{children}</li>,
+                        p: ({ children }) => <p className="mb-4">{children}</p>,
+                      }}
+                    >
+                      {msg.text}
+                    </ReactMarkdown>
+                  </div>
+                ) : (
+                  msg.text
+                )}
               </div>
             ))
           )}
