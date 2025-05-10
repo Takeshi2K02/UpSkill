@@ -1,10 +1,10 @@
-// src/components/Navbar.jsx
-import React, { useContext, useState, useEffect, use } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { Bell, Search } from "lucide-react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
+import NotificationPanel from "./NotificationPanel";
+ 
 export default function Navbar() {
   const { user } = useContext(AuthContext);
   const [searchQuery, setSearchQuery] = useState("");
@@ -14,21 +14,20 @@ export default function Navbar() {
   const [showNotifications, setShowNotifications] = useState(false);
   const dropdownRef = React.useRef(null);
   const navigate = useNavigate();
-
+ 
   const facebookId = sessionStorage.getItem("facebookId");
   const fbToken = sessionStorage.getItem("facebookAccessToken");
   const profilePicUrl =
     facebookId && fbToken
       ? `https://graph.facebook.com/${facebookId}/picture?width=48&height=48&access_token=${fbToken}`
       : null;
-
-  // Fetch notifications for the logged-in user
+ 
   useEffect(() => {
     const fetchNotifications = async () => {
       if (user?.id) {
         try {
           const response = await axios.get(
-            `http://localhost:8080/api/notifications?userId=${user.id}`
+            `http://localhost:8080/api/notifications/user/${user.id}`
           );
           setNotifications(response.data);
         } catch (error) {
@@ -36,23 +35,23 @@ export default function Navbar() {
         }
       }
     };
-
+ 
     fetchNotifications();
   }, [user?.id]);
-
+ 
   useEffect(() => {
-    const handleClickOutside = (event) => { 
+    const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setShowNotifications(false);
       }
     };
-
+ 
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [dropdownRef]);
-
+ 
   useEffect(() => {
     const searchUsers = async () => {
       if (searchQuery.trim().length > 0) {
@@ -71,24 +70,24 @@ export default function Navbar() {
         setShowResults(false);
       }
     };
-
+ 
     const timer = setTimeout(() => {
       searchUsers();
     }, 300);
-
+ 
     return () => clearTimeout(timer);
   }, [searchQuery]);
-
+ 
   const handleUserClick = (userId) => {
     navigate(`/profile/${userId}`);
     setSearchQuery("");
     setShowResults(false);
   };
-
+ 
   const toggleNotifications = () => {
     setShowNotifications(!showNotifications);
   };
-
+ 
   const getProfilePicUrl = (userId, userName) => {
     if (userId === user?.id) {
       const facebookId = sessionStorage.getItem("facebookId");
@@ -102,22 +101,18 @@ export default function Navbar() {
         return `https://graph.facebook.com/${userId}/picture?width=200&height=200&access_token=${fbToken}`;
       }
     }
-
+ 
     const nameForAvatar = userName || `User ${userId.slice(0, 5)}`;
     return `https://ui-avatars.com/api/?name=${encodeURIComponent(
       nameForAvatar
     )}&background=random&length=2`;
   };
-
-  
-
+ 
   return (
     <nav className="relative w-full bg-white shadow-lg px-6 py-4 flex items-center justify-between">
-      {/* App Name */}
       <h1 className="text-2xl font-bold text-blue-700 z-10">UpSkill 🛡️</h1>
-
-      {/* Modern Centered Search Bar */}
-      <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-xl">
+ 
+      <div className="absolute left-1/2 transform -translate-x-1/2 w-full max-w-xl z-10">
         <div className="relative">
           <span className="absolute inset-y-0 left-3 flex items-center text-gray-400">
             <Search size={18} />
@@ -129,8 +124,6 @@ export default function Navbar() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-
-          {/* Search Results Dropdown */}
           {showResults && searchResults.length > 0 && (
             <div className="absolute z-50 mt-2 w-full bg-white rounded-lg shadow-lg border border-gray-200 max-h-80 overflow-y-auto">
               {searchResults.map((user) => (
@@ -140,12 +133,7 @@ export default function Navbar() {
                   onClick={() => handleUserClick(user.id)}
                 >
                   <img
-                    src={
-                      getProfilePicUrl(user.id, user.name) ||
-                      `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                        user.name
-                      )}&background=random&length=2`
-                    }
+                    src={getProfilePicUrl(user.id, user.name)}
                     alt={user.name}
                     className="w-8 h-8 rounded-full mr-3"
                   />
@@ -161,44 +149,27 @@ export default function Navbar() {
           )}
         </div>
       </div>
-
-      {/* Profile Section */}
-      <div className="flex items-center gap-4 z-10 relative">
-        {/* Bell Icon */}
-        <div className="relative">
-        <Bell className="w-6 h-6 text-gray-600 hover:text-blue-600 cursor-pointer"
-        onClick={toggleNotifications} 
-        />
-        {notifications.filter((notification) => !notification.isRead).length > 0 && (
-          <span className="absolute top-0 right-0 bg-red-500 text-white text-xs font-semibold rounded-full px-2 py-1">
-            {notifications.filter((notification) => !notification.isRead).length}
-          </span>
-        )}
+ 
+      <div className="flex items-center gap-4 relative z-50">
+        <div className="relative z-50" ref={dropdownRef}>
+          <Bell
+            className="w-6 h-6 text-gray-600 hover:text-blue-600 cursor-pointer z-50"
+            onClick={toggleNotifications}
+          />
+          {notifications.filter((n) => !n.isRead).length > 0 && (
+            <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold rounded-full px-1.5 py-0.5 z-50">
+              {notifications.filter((n) => !n.isRead).length}
+            </span>
+          )}
+          {showNotifications && (
+            <NotificationPanel
+              notifications={notifications}
+              setNotifications={setNotifications}
+              onClose={() => setShowNotifications(false)}
+            />
+          )}
         </div>
-        {/* Notifications Dropdown */}
-        {showNotifications && (
-          <div 
-          ref = {dropdownRef}
-          className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-lg border border-gray-200 max-h-80 overflow-y-auto z-50"
-          >
-            {notifications.length > 0 ? (
-              notifications.map((notification) => (
-                <div
-                  key={notification.id}
-                  className={`px-4 py-2 text-sm ${
-                    notification.isRead ? "text-gray-500" : "text-gray-700"
-                  } hover:bg-gray-100`}
-                >
-                  <span className="font-semibold">{notification.actionBy}</span>{" "}
-                  {notification.actionType} your post{" "}
-                  </div>
-                  )) 
-                   
-            ) : (
-              <div className="p-3 text-center text-gray-500">No new notifications</div>
-            )}
-          </div>
-        )}
+ 
         {profilePicUrl && (
           <img
             src={profilePicUrl}
