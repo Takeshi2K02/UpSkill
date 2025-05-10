@@ -1,63 +1,86 @@
 package com.example.upskill.backend.model;
 
-import java.time.LocalDateTime;
-
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.time.Instant;
 
 @Document(collection = "notifications")
 public class Notification {
     @Id
     private String id;
-    private String userId; // User to notify
-    private String actionBy; // User who performed the action
-    private String actionType; // "like" or "comment"
+
+    private String recipientId;
+    private String senderId;
     private String postId;
-    private LocalDateTime timestamp;
-    private boolean isRead;
+    private String type; // LIKE or COMMENT
+    private String message;
+    private boolean isRead = false;
+    private Instant createdAt = Instant.now();
 
     // Getters and Setters
+
     public String getId() {
         return id;
     }
+
     public void setId(String id) {
         this.id = id;
     }
-    public String getUserId() {
-        return userId;
+
+    public String getRecipientId() {
+        return recipientId;
     }
-    public void setUserId(String userId) {
-        this.userId = userId;
+
+    public void setRecipientId(String recipientId) {
+        this.recipientId = recipientId;
     }
-    public String getActionBy() {
-        return actionBy;
+
+    public String getSenderId() {
+        return senderId;
     }
-    public void setActionBy(String actionBy) {
-        this.actionBy = actionBy;
+
+    public void setSenderId(String senderId) {
+        this.senderId = senderId;
     }
-    public String getActionType() {
-        return actionType;
-    }
-    public void setActionType(String actionType) {
-        this.actionType = actionType;
-    }
+
     public String getPostId() {
         return postId;
     }
+
     public void setPostId(String postId) {
         this.postId = postId;
     }
-    public LocalDateTime getTimestamp() {
-        return timestamp;
+
+    public String getType() {
+        return type;
     }
-    public void setTimestamp(LocalDateTime timestamp) {
-        this.timestamp = timestamp;
+
+    public void setType(String type) {
+        this.type = type;
     }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
     public boolean isRead() {
         return isRead;
     }
+
     public void setRead(boolean isRead) {
         this.isRead = isRead;
     }
-    
+
+    public Instant getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Instant createdAt) {
+        this.createdAt = createdAt;
+    }
 }

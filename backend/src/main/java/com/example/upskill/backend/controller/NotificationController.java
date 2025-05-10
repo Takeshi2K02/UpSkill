@@ -1,37 +1,41 @@
 package com.example.upskill.backend.controller;
 
-import java.util.List;
-
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-
 import com.example.upskill.backend.model.Notification;
-import com.example.upskill.backend.service.NotificationService;
+import com.example.upskill.backend.repository.NotificationRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/notifications")
+@CrossOrigin
 public class NotificationController {
-    private final NotificationService notificationService;
 
-    public NotificationController(NotificationService notificationService) {
-        this.notificationService = notificationService;
+    @Autowired
+    private NotificationRepository notificationRepository;
+
+    // Get all notifications for a user
+    @GetMapping("/user/{userId}")
+    public List<Notification> getUserNotifications(@PathVariable String userId) {
+        return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId);
     }
 
-    @GetMapping
-    public List<Notification> getNotifications(@RequestParam String userId) {
-        return notificationService.getAllNotifications(userId);
+    // Mark a notification as read
+    @PutMapping("/{id}/read")
+    public ResponseEntity<?> markAsRead(@PathVariable String id) {
+        return notificationRepository.findById(id).map(notification -> {
+            notification.setRead(true);
+            notificationRepository.save(notification);
+            return ResponseEntity.ok().build();
+        }).orElse(ResponseEntity.notFound().build());
     }
 
-    @GetMapping("/unread")
-    public List<Notification> getUnreadNotifications(@RequestParam String userId) {
-        return notificationService.getUnreadNotifications(userId);
-    }
-
-    @PostMapping("/mark-as-read")
-    public void markAsRead(@RequestParam String userId) {
-        notificationService.markAsRead(userId);
+    // Optional: delete a notification
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteNotification(@PathVariable String id) {
+        notificationRepository.deleteById(id);
+        return ResponseEntity.ok().build();
     }
 }

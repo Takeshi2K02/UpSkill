@@ -5,6 +5,7 @@ import { AuthContext } from "../context/AuthContext";
 import axios from "axios";
 import CommentSection from "./CommentSection";
 import PostActionbar from "./PostActionbar";
+import ConfirmationModal from "./ConfirmationModal";
 
 const Post = ({
   post,
@@ -32,6 +33,7 @@ const Post = ({
   const [editingCommentId, setEditingCommentId] = useState(null); // ID of the comment being edited
   const [editedCommentText, setEditedCommentText] = useState(""); // Text of the comment being edited
   const [openCommentId, setOpenCommentId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   
 
   const renderAttachment = (url) => {
@@ -40,7 +42,7 @@ const Post = ({
     const publicId = url.split("/").slice(-2).join("/").split(".")[0];
 
     return (
-      <div className="relative mt-3 rounded-lg overflow-hidden border border-gray-200">
+      <div className="bg-gradient-to-br from-[#e0f2ff] via-white to-[#d0e8ff] rounded-2xl shadow-lg border border-[#a0c4ff] p-6 mb-6">
         {isVideo ? (
           <Video
             cloudName={cloudName}
@@ -142,20 +144,20 @@ const Post = ({
   };
 
   const handleDelete = async () => {
-    if (
-      window.confirm(
-        "Are you sure you want to delete this post? This action cannot be undone."
-      )
-    ) {
-      setIsDeleting(true);
-      try {
-        await onDeletePost(post.id);
-      } catch (error) {
-        console.error("Failed to delete post:", error);
-        setIsDeleting(false);
-      }
-    }
+    setShowDeleteModal(true);
   };
+  
+  const confirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      await onDeletePost(post.id);
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error("Failed to delete post:", error);
+      setIsDeleting(false);
+      setShowDeleteModal(false);
+    }
+  };  
 
   const cancelEdit = () => {
     setIsEditing(false);
@@ -215,7 +217,7 @@ const Post = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+    <div className="bg-gradient-to-br from-[#bfdcff] via-[#e6f0ff] to-[#a3cfff] rounded-2xl shadow-lg border border-[#6ea8ff] p-6 mb-6">
       {/* Post Header */}
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -310,7 +312,7 @@ const Post = ({
       </div>
 
       {/* Post Content */}
-      <div className="px-4 pb-3">
+      <div className="bg-gradient-to-br from-[#bfdcff] via-[#e6f0ff] to-[#a3cfff] rounded-2xl shadow-lg border border-[#6ea8ff] p-6 mb-6">
         {isEditing ? (
           <>
             <textarea
@@ -330,7 +332,7 @@ const Post = ({
                   {post.attachments
                     .filter((url) => !removedAttachments.includes(url))
                     .map((url, index) => (
-                      <div key={index}>{renderAttachment(url)}</div>
+                      <div key={url}>{renderAttachment(url)}</div>
                     ))}
                 </div>
               </div>
@@ -547,6 +549,15 @@ const Post = ({
           )}
         </>
       )}
+      <ConfirmationModal
+        isOpen={showDeleteModal}
+        title="Delete this post?"
+        description="This action cannot be undone. Are you sure you want to permanently delete this post?"
+        confirmText={isDeleting ? "Deleting..." : "Delete"}
+        cancelText="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 };

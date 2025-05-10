@@ -20,6 +20,7 @@ import GroupDetail from './pages/GroupDetail';
 import GroupForm from './pages/GroupForm';
 import ComingSoon from './pages/ComingSoon';
 import SignUp from './pages/SignUp';
+import Chatbot from './pages/Chatbot';
 
 function App() {
   const { user, logout } = useContext(AuthContext);
@@ -68,10 +69,10 @@ function App() {
           {/* Unauthorized Page */}
           <Route path="/unauthorized" element={<Unauthorized />} />
 
-          {/* Chatbot Route */}
-          <Route path="/chatbot" element={<PrivateRoute><ComingSoon /></PrivateRoute>} />
-
           <Route path="/signup" element={<SignUp />} />
+
+          <Route path="/chatbot" element={<PrivateRoute><Chatbot /></PrivateRoute>} />
+
         </Routes>
 
         {/* ✅ Toast container added here */}
