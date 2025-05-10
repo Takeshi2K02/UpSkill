@@ -14,3 +14,9 @@ export async function saveMessage({ userId, sender, text }) {
     text,
   });
 }
+
+// New function to fetch the last N messages for context
+export async function getRecentMessages(userId, limit) {
+  const res = await axios.get(`${API_URL}/${userId}/recent/${limit}`);
+  return res.data;
+}

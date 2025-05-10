@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import useAI from "../ai/useAI";
-import { getChatHistory, saveMessage } from "../services/chatService";
+import { getChatHistory, saveMessage, getRecentMessages } from "../services/chatService";
 import { Send, Loader2 } from "lucide-react";
 import CommonLayout from "../layouts/CommonLayout";
 
@@ -26,11 +26,24 @@ export default function Chatbot() {
     if (!input.trim() || !userId) return;
 
     const userMessage = { userId, sender: "user", text: input };
-    const aiText = await askGemini(input);
+    // Temporarily add user message to state for immediate UI feedback
+    setMessages((prev) => [...prev, userMessage]);
+    setInput("");
+
+    // Fetch the last 5 messages as context
+    const recentMessages = await getRecentMessages(userId, 5);
+    // Format context as a conversation history
+    const context = recentMessages
+      .map(msg => `${msg.sender === "user" ? "User" : "AI"}: ${msg.text}`)
+      .join("\n");
+    const fullPrompt = context ? `${context}\nUser: ${input}` : `User: ${input}`;
+
+    // Generate AI response with the full prompt
+    const aiText = await askGemini(fullPrompt);
     const aiMessage = { userId, sender: "ai", text: aiText };
 
-    setMessages((prev) => [...prev, userMessage, aiMessage]);
-    setInput("");
+    // Update state with both messages
+    setMessages((prev) => [...prev.filter(m => m !== userMessage), userMessage, aiMessage]);
 
     await saveMessage(userMessage);
     await saveMessage(aiMessage);

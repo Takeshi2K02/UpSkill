@@ -23,4 +23,10 @@ public class ChatController {
     public ChatMessage saveMessage(@RequestBody ChatMessage message) {
         return chatRepo.save(message);
     }
+
+    // New endpoint to fetch the last N messages for context
+    @GetMapping("/{userId}/recent/{limit}")
+    public List<ChatMessage> getRecentMessages(@PathVariable String userId, @PathVariable int limit) {
+        return chatRepo.findTopByUserIdOrderByTimestampDesc(userId, limit);
+    }
 }
