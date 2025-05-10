@@ -42,7 +42,7 @@ const Post = ({
     const publicId = url.split("/").slice(-2).join("/").split(".")[0];
 
     return (
-      <div className="relative mt-3 rounded-lg overflow-hidden border border-gray-200">
+      <div className="bg-gradient-to-br from-[#e0f2ff] via-white to-[#d0e8ff] rounded-2xl shadow-lg border border-[#a0c4ff] p-6 mb-6">
         {isVideo ? (
           <Video
             cloudName={cloudName}
@@ -217,7 +217,7 @@ const Post = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md overflow-hidden mb-6">
+    <div className="bg-gradient-to-br from-[#bfdcff] via-[#e6f0ff] to-[#a3cfff] rounded-2xl shadow-lg border border-[#6ea8ff] p-6 mb-6">
       {/* Post Header */}
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center space-x-3">
@@ -312,7 +312,7 @@ const Post = ({
       </div>
 
       {/* Post Content */}
-      <div className="px-4 pb-3">
+      <div className="bg-gradient-to-br from-[#bfdcff] via-[#e6f0ff] to-[#a3cfff] rounded-2xl shadow-lg border border-[#6ea8ff] p-6 mb-6">
         {isEditing ? (
           <>
             <textarea
