@@ -1,13 +1,15 @@
 export const generatePlanTitlePrompt = `
-You are helping users create high-quality learning plans on a skill-sharing platform.
+You are helping users create high-quality learning plans focused on Artificial Intelligence, Machine Learning, and Data Science.
 
-Generate 5 concise, engaging, and goal-oriented learning plan titles.
+Generate 5 concise, engaging, and goal-oriented learning plan titles related to AI, ML, or Data Science. Titles should reflect trending technologies, practical skills, or real-world applications.
+
 Each title should:
 - Be suitable for a broad audience
 - Clearly convey the skill or goal to be achieved
-- Use natural language (avoid technical jargon unless appropriate)
+- Use natural language without technical jargon unless necessary
+- Avoid using any numbers or special symbols such as * or .
 
-Format: list each title on a new line without numbers, bullets or any special characters.
+Format: list each title on a new line without numbers, bullets, or any special characters.
 Output only the titles.
 `;
 
