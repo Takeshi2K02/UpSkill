@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import CommonLayout from '../layouts/CommonLayout';
 import TitleInput from '../components/TitleInput';
 import DescriptionInput from '../components/DescriptionInput';
@@ -7,7 +7,7 @@ import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { getLearningPlanById, updateLearningPlan } from '../services/learningPlanService';
 import { useParams, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export default function EditLearningPlan() {
@@ -80,59 +80,88 @@ export default function EditLearningPlan() {
       if (!description.trim()) setDescError('Please enter a description.');
       return;
     }
-  
-    // try {
-    //   setLoading(true);
-    //   const learningPlan = {
-    //     title: selectedTitle,
-    //     description,
-    //     topics: (topics),
-    //     dueDate: dueDate ? dueDate.toISOString() : null,
-    //   };
-    //   await updateLearningPlan(id, learningPlan);
-    //   toast.success('Learning plan updated successfully!');
-    //   setTimeout(() => navigate('/learning-plans'), 1500);
-    // } catch (error) {
-    //   console.error('Error updating learning plan:', error);
-    //   toast.error('Failed to update learning plan.');
-    // } finally {
-    //   setLoading(false);
-    // }
+
+    try {
+      setLoading(true);
+      const learningPlan = {
+        title: selectedTitle,
+        description,
+        topics,
+        dueDate: dueDate ? dueDate.toISOString() : null,
+      };
+      await updateLearningPlan(id, learningPlan);
+      toast.success('Learning plan updated successfully!');
+      setTimeout(() => navigate('/learning-plans'), 1500);
+    } catch (error) {
+      console.error('Error updating learning plan:', error);
+      toast.error('Failed to update learning plan.');
+    } finally {
+      setLoading(false);
+    }
   };      
 
   return (
-    <CommonLayout>
-      <div className="p-6 bg-white min-h-screen">
-        <h2 className="text-2xl font-bold text-blue-700 mb-6">Edit Learning Plan</h2>
+  <CommonLayout>
+    <div className="p-6 bg-white min-h-screen">
+      <h2 className="text-2xl font-bold text-blue-700 mb-6">Edit Learning Plan</h2>
 
-        <TitleInput value={selectedTitle} onChange={handleTitleChange} suggestions={[]} />
-        {titleError && <p className="text-red-600 text-sm mt-1">{titleError}</p>}
+      {/* Title */}
+      <TitleInput
+        value={selectedTitle}
+        onChange={handleTitleChange}
+        suggestions={[]} // no AI suggestions on edit
+      />
+      {titleError && <p className="text-red-600 text-sm mt-1">{titleError}</p>}
 
-        <DescriptionInput value={description} onChange={setDescription} title={selectedTitle} />
-        {descError && <p className="text-red-600 text-sm mt-1">{descError}</p>}
+      {/* Description */}
+      <DescriptionInput
+        value={description}
+        onChange={setDescription}
+        title={selectedTitle}
+      />
+      {descError && <p className="text-red-600 text-sm mt-1">{descError}</p>}
 
-        <TopicList
-          topics={topics}
-          onTopicChange={handleTopicChange}
-          onSelectSuggestion={() => {}} // No AI suggestions during edit
-          onAddTopic={handleAddTopic}
-          onSaveLearningPlan={handleSaveLearningPlan}
-          onClearTopic={handleClearTopic}
-          canSave={canSave}
+      {/* Topics */}
+      <TopicList
+        topics={topics}
+        onTopicChange={handleTopicChange}
+        onSelectSuggestion={() => {}}
+        onAddTopic={handleAddTopic}
+        onSaveLearningPlan={handleSaveLearningPlan}
+        onClearTopic={handleClearTopic}
+        canSave={canSave}
+        loading={loading}
+      />
+
+      {/* Due Date */}
+      <div className="mt-8">
+        <label className="block text-gray-700 font-medium mb-2">Due Date</label>
+        <DatePicker
+          selected={dueDate}
+          onChange={(date) => setDueDate(date)}
+          dateFormat="yyyy-MM-dd"
+          className="border border-gray-300 focus:ring-2 focus:ring-blue-400 rounded-lg px-4 py-2 w-full shadow-sm focus:outline-none"
+          placeholderText="Select a due date"
         />
-
-        {/* Due Date Field */}
-        <div className="mt-6">
-          <label className="block text-gray-700 font-medium mb-2">Due Date</label>
-          <DatePicker
-            selected={dueDate}
-            onChange={(date) => setDueDate(date)}
-            dateFormat="yyyy-MM-dd"
-            className="border border-gray-300 rounded px-4 py-2 w-full"
-            placeholderText="Select a due date"
-          />
-        </div>
       </div>
-    </CommonLayout>
+
+      {/* Save Button */}
+      <div className="mt-8 flex justify-end">
+        <button
+          disabled={loading || !canSave()}
+          onClick={handleSaveLearningPlan}
+          className={`px-6 py-2 rounded-lg font-semibold transition duration-200 ${
+            loading || !canSave()
+              ? 'bg-gray-300 cursor-not-allowed'
+              : 'bg-blue-600 text-white hover:bg-blue-700'
+          }`}
+        >
+          {loading ? 'Saving...' : 'Save Changes'}
+        </button>
+      </div>
+
+      <ToastContainer position="top-center" autoClose={3000} />
+    </div>
+  </CommonLayout>
   );
 }
