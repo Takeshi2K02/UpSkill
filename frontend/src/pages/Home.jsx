@@ -59,6 +59,7 @@ export default function Home() {
           likes: post.likeCount || 0,
           comments: post.commentCount || 0,
           commentsList: (post.comments || []).map((comment) => ({
+            _id: comment.id,
             userId: comment.userId,
             username:
               comment.userName ||
